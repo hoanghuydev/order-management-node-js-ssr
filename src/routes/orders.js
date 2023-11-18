@@ -2,7 +2,7 @@ const OrderController = require('../controllers/OrderController');
 const { authAdmin, auth } = require('../middlewares/auth');
 const multer = require('multer');
 const router = require('express').Router();
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ dest: 'tmp/' });
 router.get('/me', auth, OrderController.renderMyOrders);
 router.get('/manager', authAdmin, OrderController.renderOrderManager);
 router.get('/hide', authAdmin, OrderController.renderOrderHide);
