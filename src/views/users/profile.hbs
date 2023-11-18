@@ -1,0 +1,57 @@
+<div id='wrapper'>
+    {{>sidebar}}
+
+    <div id='content-wrapper' class='d-flex flex-column'>
+        <div id='content'>
+              {{>header}}
+            <div class='container-fluid'>
+
+                 <!-- Page Heading -->
+                <div
+                    class='d-sm-flex align-items-center justify-content-between mb-4'
+                >
+                    <h1 class='h3 mb-0 text-gray-800'>Thông tin người dùng</h1>
+                   
+                </div>
+
+               
+                    <div class="card card-body">
+                        <form action="/users/bank-info?_method=PUT" method="POST" id="formUpdateBank">
+                          <div class="mb-3">
+                                <label for="typeShop" class="form-label">Tên ngân hàng</label>
+                                <select id="typeShop" class="form-select" name="bankCode" required>
+                                     <option value="" {{#eq me.bankCode '' }} selected{{/eq}}>--Vui lòng chọn ngân hàng--</option>
+                                    {{#each banks}}
+                                  <option value="{{this.code}}" {{#eq this.code ../me.bankCode}}selected{{/eq}}>{{this.name}}</option>
+                                    {{/each}}
+                                </select>
+                            </div>
+                          <div class="mb-3">
+                            <label for="numberAccount" class="form-label">Số tài khoản ngân hàng</label>
+                            <input type="text" required class="form-control" id="numberAccount" name="bankNumber" value="{{me.bankNumber}}">
+                          </div>
+                          <div class="mb-3">
+                            <label for="holder" class="form-label">Chủ tài khoản</label>
+                            <input type="text" required class="form-control" id="holder" name="bankHolder" value="{{me.bankHolder}}">
+                          </div>
+                        
+                          <button type="submit" class="btn btn-primary">Cập nhật cửa hàng</button>
+                        </form>
+                    </div>
+            </div>
+        </div>
+    </div>
+    {{!-- Loading --}}
+<div class='fixed-top fixed-bottom d-none' id='loadingIndicator' style="background-color: #00000047">
+    <div class='dots-1 m-auto'></div>
+</div>
+<script>
+      document.addEventListener('DOMContentLoaded', function(){
+          $('#formUpdateBank').on('submit', function() {
+            $('#loadingIndicator').removeClass('d-none').addClass('d-flex');
+        });
+      })
+
+</script>
+
+

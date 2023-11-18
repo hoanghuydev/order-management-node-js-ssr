@@ -1,0 +1,252 @@
+<div id='wrapper'>
+    {{>sidebar}}
+
+    <div id='content-wrapper' class='d-flex flex-column'>
+        <div id='content'>
+              {{>header}}
+            <div class='container-fluid'>
+
+                 <!-- Page Heading -->
+               <div
+                    class='d-sm-flex align-items-center justify-content-between mb-4'
+                >
+                    <h1 class='h3 mb-0 text-gray-800'>Quản lý đơn hàng</h1>
+                   
+                </div>
+
+                <!-- Content Row -->
+                <button class="btn btn-primary mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                    <i class="fa-solid fa-circle-plus me-1" style="color: #ffffff;"></i>Cập nhật đơn hàng
+                </button>
+                <div class="collapse mb-3" id="collapseExample">
+                    <div class="card card-body">
+                        <form
+                            id='formUpdateOrder'
+                            action='/orders/update'
+                            method='POST'
+                            enctype="multipart/form-data"
+                        >
+                        <div class='mb-3'>
+                            <label for='formFile' class='form-label'>Chọn tệp excel chứa các đơn hàng cần thêm</label>
+                            <input
+                                class='form-control'
+                                type='file'
+                                id='formFile'
+                                name='file'
+                                accept=".xlsx, .xls"
+                                required
+                            />
+                        </div>
+                         <div class="mb-3">
+                                <label for="typeShop" class="form-label">Shop</label>
+                                <select id="typeShop" class="form-select" name="shopId" required>
+                                        <option value="" selected disabled>-- Chọn cửa hàng --</option>
+                                    {{#each shops}}
+                                        <option value="{{this._id}}">{{this.name}}</option>
+                                    {{/each}}
+                                </select>
+                            </div>
+                        <input class="btn btn-primary" type="submit" value="Cập nhật đơn hàng mới">
+                    </form>
+                    </div>
+                </div>
+                <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Tất cả đơn hàng</h6>
+                        </div>
+                        <form action="/orders/pay?_method=PUT" method="POST" id="formPayOrder">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                        <thead>
+                                            <tr>
+                                                <th>Đã thanh toán</th>
+                                                <th>Mã đơn hàng</th>
+                                                <th>Mã người nhập đơn</th>
+                                                <th>Shop</th>
+                                                <th>Tài khoản mua</th>
+                                                <th>Trạng thái</th>
+                                                <th>Voucher</th>
+                                                <th>Tổng giá trị đơn hàng</th>
+                                                <th>Mã tiền công</th>
+                                                <th>Tiền công</th>
+                                                <th>Người mua phải trả</th>
+                                                <th>Phí thanh toán</th>
+                                                <th>Phí cố định</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            {{#each orders}}
+                                            <tr>
+                                                <td>{{#eq this.status 'Chờ thanh toán'}}<input type="checkbox" value="{{this._id}}" name="orderIds">{{/eq}}</td>
+                                                <td>{{this.orderCode}}</td>
+                                                <td data-bs-toggle="modal" data-bs-target="#bankingInfo" data-order-code="{{this.orderCode}}" data-user-id="{{this.userId}}" data-wage-amount="{{this.wageAmount}}" id="btnShowBankInfo" >{{this.userId}}</td>
+                                                <td>{{this.shopName}}</td>
+                                                <td>{{this.purchaseAccount}}</td>
+                                                <td>{{this.status}}</td>
+                                                <td>{{this.voucher}}</td>
+                                                <td>{{this.orderValue}}</td>
+                                                <td>{{this.wageCode}}</td>
+                                                <td>{{this.wageAmount}}</td>
+                                                <td>{{this.buyerPay}}</td>
+                                                <td>{{this.payFee}}</td>
+                                                <td>{{this.staticFee}}</td>
+                                                <td class="d-flex flex-column justify-content-center align-items-center">
+                                                     <a href="/orders/edit/{{this._id}}" class="btn btn-primary mx-2"><i class="fa-solid fa-pen-to-square text-white"></i></a>
+                                                    <div class="btn btn-danger " data-bs-toggle="modal" data-bs-target="#deleteorder" data-order-id="{{this._id}}"><i class="fa-solid fa-trash text-white"></i></div>
+                                                </td>
+                                            </tr>
+                                           {{/each}}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <button class="btn btn-success ms-3" type="submit" id="payOrder">Đã thanh toán</button>
+                        </form>
+
+                        
+                </div>
+                <div class="d-flex justify-content-end"> <a href="/orders/hide" class="text-decoration-none text-decoration-underline">Đơn hàng ẩn (Số lượng đơn hàng ẩn lớn thì thời gian truy cập sẽ tăng)</a></div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+{{!-- Toast --}}
+<div class="position-absolute top-0 end-0">
+<div class="toast align-items-center text-bg-primary border-0" id="liveToast" role="alert" aria-live="assertive" aria-atomic="true">
+  <div class="d-flex">
+    <div class="toast-body">
+      Đã tải thành công, có thể kiểm tra ở database hoặc ở đơn hàng ẩn
+    </div>
+    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+  </div>
+</div>
+</div>
+</div>
+{{!-- Loading --}}
+<div class='fixed-top fixed-bottom d-none' id='loadingIndicator' style="background-color: #00000047">
+    <div class='dots-1 m-auto'></div>
+</div>
+{{!-- Modal Banking --}}
+<div class="modal fade" id="bankingInfo" tabindex="-1" aria-labelledby="bankingInfo" aria-hidden="true" >
+      <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class='dots-1  m-auto d-flex' id="loadingQRCode"></div>
+        
+        <img src="" alt="" id="bankingImg" style="width: 100%;">
+        <div id="bankingText"></div>
+      </div>
+     
+    </div>
+  </div>
+</div>
+{{!-- Modal & Form Delete Order --}}
+    <div class="modal fade" id="deleteorder" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" >
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Xóa đơn hàng</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Bạn có chắc chắn muốn xóa đơn hàng này?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Không</button>
+            <button type="button" class="btn btn-danger btn-delete-order">Xóa</button>
+     
+        
+      </div>
+    </div>
+  </div>
+</div>
+   <form action="/orders/delete?_method=DELETE" method="POST" id="orderDelete" class="d-none" name="delete-order-form"></form>
+<script>
+    document.addEventListener('DOMContentLoaded', function(){
+        {{!-- Show Loading --}}
+        $('#formUpdateOrder').on('submit', function() {
+            $('#loadingIndicator').removeClass('d-none').addClass('d-flex');
+        });
+         $('#orderDelete').on('submit', function() {
+            $('#loadingIndicator').removeClass('d-none').addClass('d-flex');
+        });
+        $('#formPayOrder').on('submit', function() {
+            $('#loadingIndicator').removeClass('d-none').addClass('d-flex');
+        });
+        {{!-- Show toast --}}
+
+        const url = new URL(window.location.href)
+        const query = url.searchParams;
+        if (query.get('update_order') === 'success') {
+            const toastElement = document.getElementById('liveToast');
+            const toastBootstrap = new bootstrap.Toast(toastElement);
+            toastBootstrap.show();
+        }
+        {{!-- Show banking modal --}}
+        
+         let userId;
+         let wageAmount;
+         let orderCode
+        const bankModal = document.getElementById('bankingInfo')
+        if (bankModal) {
+          bankModal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget
+            userId = button.getAttribute('data-user-id')
+            wageAmount = button.getAttribute('data-wage-amount')
+            orderCode = button.getAttribute('data-order-code')
+            
+           fetch('/users/info/'+userId).then((user) => user.json()).then((user)=> {
+            let bankQr = `https://img.vietqr.io/image/${user.bankCode}-${user.bankNumber}-compact2.png?amount=${wageAmount}&addInfo=${orderCode}&accountName=${user.bankHolder}`
+            let bankText = `<strong>Chủ tài khoản: </strong>${user.bankHolder}. <strong>Số tài khoản: </strong> ${user.bankNumber}. <strong>Mã ngân hàng :</strong> ${user.bankCode}`;
+             $('#loadingQRCode').removeClass('d-flex').addClass('d-none');
+            $('#bankingImg').attr('src', bankQr);
+            $('#bankingText').html(bankText);
+            })
+          })
+          bankModal.addEventListener('hidden.bs.modal', function(event) {
+             $('#loadingQRCode').removeClass('d-none').addClass('d-flex');
+            $('#bankingImg').attr('src', "");
+            $('#bankingText').html("");
+          })
+        }
+
+        {{!-- Show Modal Delete Order --}}
+        let orderId;
+       const deleteForm = document.forms['delete-order-form']
+        const deleteorderModal = document.getElementById('deleteorder');
+        if (deleteorderModal) {
+          deleteorderModal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget
+            orderId = button.getAttribute('data-order-id')
+            
+          })
+        }
+        $('.btn-delete-order').on('click', function(){
+            deleteForm.action = `/orders/delete/${orderId}?_method=DELETE`;
+            deleteForm.submit()
+       })
+        {{!-- Change status to Đã thanh toán --}}
+        function validateFormPay() {
+            const checked = $("input:checkbox[name^='orderIds']:checked").length;
+            if(!checked) {
+                $("#payOrder").attr('disabled','');
+
+            } else {
+                $("#payOrder").removeAttr('disabled');
+            }
+        }
+        validateFormPay()
+        $("input:checkbox[name^='orderIds']").on('change', function () {
+            validateFormPay()
+        });      
+    });
+</script>

@@ -1,0 +1,15 @@
+const express = require('express');
+const router = express.Router();
+const UserController = require('../controllers/UserController');
+const { auth, isLogin, authAdmin } = require('../middlewares/auth');
+router.get('/logout', UserController.logout);
+router.get('/register', UserController.renderRegister);
+router.get('/login', UserController.renderLogin);
+router.get('/profile', isLogin, UserController.renderProfile);
+router.get('/info/:userId', authAdmin, UserController.getUserById);
+router.get('/manager', authAdmin, UserController.renderManagerUser);
+router.put('/vertify', authAdmin, UserController.vertifyUser);
+router.put('/bank-info', isLogin, UserController.updateBank);
+router.post('/register', UserController.register);
+router.post('/login', UserController.login);
+module.exports = router;

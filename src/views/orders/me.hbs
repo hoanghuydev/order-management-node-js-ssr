@@ -1,0 +1,207 @@
+<div id='wrapper'>
+    {{>sidebar}}
+
+    <div id='content-wrapper' class='d-flex flex-column'>
+        <div id='content'>
+              {{>header}}
+            <div class='container-fluid'>
+
+                 <!-- Page Heading -->
+                <div
+                    class='d-sm-flex align-items-center justify-content-between mb-4'
+                >
+                    <h1 class='h3 mb-0 text-gray-800'>Đơn hàng của tôi</h1>
+                   
+                </div>
+
+                <!-- Content Row -->
+                <div class='row'>
+
+                    <!-- Earnings (Monthly) Card Example -->
+                    <div class='col-xl-3 col-md-6 mb-4'>
+                        <div class='card border-left-primary shadow h-100 py-2'>
+                            <div class='card-body'>
+                                <div class='row no-gutters align-items-center'>
+                                    <div class='col mr-2'>
+                                        <div
+                                            class='text-xs font-weight-bold text-primary text-uppercase mb-1'
+                                        >
+                                           Tiền đầu tư</div>
+                                        <div
+                                            class='h5 mb-0 font-weight-bold text-gray-800'
+                                        >{{investmentMoney}}</div>
+                                    </div>
+                                    <div class='col-auto'>
+                                        <i
+                                            class='fas fa-calendar fa-2x text-gray-300'
+                                        ></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Earnings (Monthly) Card Example -->
+                    <div class='col-xl-3 col-md-6 mb-4'>
+                        <div class='card border-left-warning shadow h-100 py-2'>
+                            <div class='card-body'>
+                                <div class='row no-gutters align-items-center'>
+                                    <div class='col mr-2'>
+                                        <div
+                                            class='text-xs font-weight-bold text-success text-uppercase mb-1'
+                                        >
+                                            Đơn đang chờ xác nhận</div>
+                                        <div
+                                            class='h5 mb-0 font-weight-bold text-gray-800'
+                                        >{{countOrderWaitConfirm}}</div>
+                                    </div>
+                                    <div class='col-auto'>
+                                        <i
+                                            class='fas fa-comments fa-2x text-gray-300'
+                                        ></i>
+                                      
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    
+
+                    <!-- Pending Requests Card Example -->
+                    <div class='col-xl-3 col-md-6 mb-4'>
+                        <div class='card border-left-warning shadow h-100 py-2'>
+                            <div class='card-body'>
+                                <div class='row no-gutters align-items-center'>
+                                    <div class='col mr-2'>
+                                        <div
+                                            class='text-xs font-weight-bold text-warning text-uppercase mb-1'
+                                        >
+                                            Đơn chờ thanh toán</div>
+                                        <div
+                                            class='h5 mb-0 font-weight-bold text-gray-800'
+                                        >{{countOrderWaitPay}}</div>
+                                    </div>
+                                    <div class='col-auto'>
+                                          <i
+                                            class='fas fa-dollar-sign fa-2x text-gray-300'
+                                        ></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class='col-xl-3 col-md-6 mb-4'>
+                        <div class='card border-left-success shadow h-100 py-2'>
+                            <div class='card-body'>
+                                <div class='row no-gutters align-items-center'>
+                                    <div class='col mr-2'>
+                                        <div
+                                            class='text-xs font-weight-bold text-warning text-uppercase mb-1'
+                                        >
+                                            Đơn đã thanh toán</div>
+                                        <div
+                                            class='h5 mb-0 font-weight-bold text-gray-800'
+                                        >{{countOrderDone}}</div>
+                                    </div>
+                                    <div class='col-auto'>
+                                          <i class="fa-solid fa-circle-check  fa-2x text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Đơn hàng của tôi</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>Mã đơn hàng</th>
+                                            <th>Shop</th>
+                                            <th>Tài khoản mua</th>
+                                            <th>Trạng thái</th>
+                                            <th>Voucher</th>
+                                            <th>Tổng giá trị đơn hàng</th>
+                                            <th>Tiền công</th>
+                                            <th>Người mua phải trả</th>
+                                            <th></th>
+
+                                        </tr>
+                                    </thead>
+                                    
+                                    <tbody>
+                                        {{#each myOrders}}
+                                        <tr>
+                                            <td>{{this.orderCode}}</td>
+                                            <td>{{this.shopName}}</td>
+                                            <td>{{this.purchaseAccount}}</td>
+                                            <td>{{this.status}}</td>
+                                            <td>{{this.voucher}}</td>
+                                            <td>{{this.orderValue}}</td>
+                                            <td>{{this.wageAmount}}</td>
+                                            <td>{{this.buyerPay}}</td>
+                                             <td class="d-flex flex-column justify-content-center align-items-center">
+                                                {{!-- {{#noteq2var}} <a href="/orders/edit/{{this._id}}" class="btn btn-primary my-2"><i class="fa-solid fa-pen-to-square text-white"></i></a>{{/noteq2var}} --}}
+                                                <div class="btn btn-danger " data-bs-toggle="modal" data-bs-target="#deleteOrder" data-order-id="{{this._id}}"><i class="fa-solid fa-trash text-white"></i></div>
+                                            </td>
+                                        </tr>
+                                       {{/each}}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+    </div>
+
+{{!-- Loading --}}
+<div class='fixed-top fixed-bottom d-none' id='loadingIndicator' style="background-color: #00000047">
+    <div class='dots-1 m-auto'></div>
+</div>
+{{!-- Modal delete --}}
+<div class="modal fade" id="deleteOrder" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" >
+      <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Xóa đơn hàng</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Bạn có chắc chắn muốn xóa đơn hàng này?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Không</button>
+            <button type="button" class="btn btn-danger btn-delete-order">Xóa</button>   
+      </div>
+    </div>
+  </div>
+</div>
+   <form action="/orders/delete?_method=DELETE" method="POST" id="formDelete" class="d-none" name="delete-order-form"></form>
+<script>
+    document.addEventListener('DOMContentLoaded', function(){
+          $('#formDelete').on('submit', function() {
+            $('#loadingIndicator').removeClass('d-none').addClass('d-flex');
+        });
+       let orderId;
+       const deleteForm = document.forms['delete-order-form']
+        const deleteOrderModal = document.getElementById('deleteOrder');
+        if (deleteOrderModal) {
+          deleteOrderModal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget
+            orderId = button.getAttribute('data-order-id')
+            
+          })
+        }
+        $('.btn-delete-order').on('click', function(){
+            deleteForm.action = `/orders/delete/${orderId}?_method=DELETE`;
+            deleteForm.submit();
+       })
+
+    });
+</script>

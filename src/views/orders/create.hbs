@@ -1,0 +1,77 @@
+<div id='wrapper'>
+    {{>sidebar}}
+
+    <div id='content-wrapper' class='d-flex flex-column'>
+        <div id='content'>
+              {{>header}}
+            <div class='container-fluid'>
+
+                 <!-- Page Heading -->
+               <div
+                    class='d-sm-flex align-items-center justify-content-between mb-4'
+                >
+                    <h1 class='h3 mb-0 text-gray-800'>Tạo đơn hàng</h1>
+                   
+                </div>
+
+                <!-- Content Row -->
+                <div class="card card-body">
+                        <form action="/orders/create" method="POST" id="formCreateOrder">
+                          <div class="mb-3">
+                            <label for="orderCode" class="form-label">Mã đơn hàng</label>
+                            <input type="text" required class="form-control" id="orderCode" name="orderCode">
+                             <div class="form-text" id="basic-addon4">Có thể chỉ nhập mã đơn hàng, hệ thống sẽ tự update</div>
+                          </div>
+                          <div class="mb-3">
+                            <label for="purchaseAccount" class="form-label">Nick mua</label>
+                            <input type="text" value="" class="form-control" id="purchaseAccount" name="purchaseAccount">
+                          </div>
+                            <div class="mb-3">
+                                <label for="shopId" class="form-label">Shop</label>
+                                <select id="shopId" class="form-select" name="shopId">
+                                        <option value="" selected disabled>-- Chọn cửa hàng --</option>
+                                    {{#each shops}}
+                                        <option value="{{this._id}}">{{this.name}}</option>
+                                    {{/each}}
+                                </select>
+                            </div>
+                          <button type="submit" class="btn btn-primary">Tạo đơn hàng</button>
+                        </form>
+                    </div>
+                
+               
+            </div>
+        </div>
+    </div>
+
+<div class="position-absolute top-0 end-0">
+<div class="toast align-items-center text-bg-danger border-0" id="liveToast" role="alert" aria-live="assertive" aria-atomic="true">
+  <div class="d-flex">
+    <div class="toast-body">
+      Đơn hàng đã được thêm bởi user khác
+    </div>
+    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+  </div>
+</div>
+</div>
+</div>
+{{!-- Loading --}}
+<div class='fixed-top fixed-bottom d-none' id='loadingIndicator' style="background-color: #00000047">
+    <div class='dots-1 m-auto'></div>
+</div>
+<script>
+      document.addEventListener('DOMContentLoaded', function(){
+        {{!-- Show Toast --}}
+        const url = new URL(window.location.href)
+        const query = url.searchParams;
+        if (query.get('success') === 'false') {
+            const toastElement = document.getElementById('liveToast');
+            const toastBootstrap = new bootstrap.Toast(toastElement);
+            toastBootstrap.show();
+        }
+          {{!-- Show Loading --}}
+        $('#formCreateOrder').on('submit', function() {
+            $('#loadingIndicator').removeClass('d-none').addClass('d-flex');
+        });
+      })
+</script>

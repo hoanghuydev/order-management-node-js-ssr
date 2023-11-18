@@ -1,0 +1,89 @@
+<div id='wrapper'>
+    {{>sidebar}}
+
+    <div id='content-wrapper' class='d-flex flex-column'>
+        <div id='content'>
+              {{>header}}
+            <div class='container-fluid'>
+
+                 <!-- Page Heading -->
+               <div
+                    class='d-sm-flex align-items-center justify-content-between mb-4'
+                >
+                    <h1 class='h3 mb-0 text-gray-800'>Quản lý người dùng</h1>
+                   
+                </div>
+
+            
+                <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Tất cả đơn hàng</h6>
+                        </div>
+                        <form action="/users/vertify?_method=PUT" method="POST" id="formVertifyUser">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                        <thead>
+                                            <tr>
+                                                <th></th>
+                                                <th>Xác thực</th>
+                                                <th>User ID</th>
+                                                <th>Username</th>
+                                                <th>Mã ngân hàng</th>
+                                                <th>Chủ tài khoản</th>
+                                                <th>Số tài khoản</th>
+                                               
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            {{#each users}}
+                                            <tr>
+                                                <td>{{#eq this.isVertify false}}<input type="checkbox" value="{{this._id}}" name="userIds">{{/eq}}</td>
+                                                <td>{{this.isVertify}}</td>
+                                                <td>{{this._id}}</td>
+                                                <td>{{this.username}}</td>
+                                                <td>{{this.bankCode}}</td>
+                                                <td>{{this.bankHolder}}</td>
+                                                <td>{{this.bankNumber}}</td>
+                                            </tr>
+                                           {{/each}}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <button class="btn btn-success ms-3" type="submit" id="payOrder">Vertify</button>
+                        </form>
+
+                        
+                </div>
+            </div>
+        </div>
+    </div>
+{{!-- Loading --}}
+<div class='fixed-top fixed-bottom d-none' id='loadingIndicator' style="background-color: #00000047">
+    <div class='dots-1 m-auto'></div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function(){
+        {{!-- Loading --}}
+        $('#formVertifyUser').on('submit', function() {
+            $('#loadingIndicator').removeClass('d-none').addClass('d-flex');
+        });
+
+        {{!-- Vertify user --}}
+        function validateFormVertify() {
+            const checked = $("input:checkbox[name^='userIds']:checked").length;
+            if(!checked) {
+                $("#payOrder").attr('disabled','');
+
+            } else {
+                $("#payOrder").removeAttr('disabled');
+            }
+        }
+        validateFormVertify()
+        $("input:checkbox[name^='userIds']").on('change', function () {
+            validateFormVertify()
+        });      
+    });
+</script>

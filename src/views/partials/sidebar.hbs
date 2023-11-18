@@ -1,0 +1,63 @@
+<ul
+        class='navbar-nav bg-gradient-primary sidebar sidebar-dark accordion'
+        id='accordionSidebar'
+    >
+
+        <!-- Sidebar - Brand -->
+        <a
+            class='sidebar-brand d-flex align-items-center justify-content-center'
+            href='/'
+        >
+            <div class='sidebar-brand-icon '>
+                <i class="fa-brands fa-shopify"></i>
+            </div>
+            <div class='sidebar-brand-text mx-3'>Nam Nguyen Order</div>
+        </a>
+        {{#if me.admin}}
+         <hr class='sidebar-divider' />
+        <div class='sidebar-heading'>
+            Admin
+        </div>
+        <li class='nav-item {{#eq tab 'dashboard'}} active {{/eq}}'>
+            <a class='nav-link' href='/admin/dashboard'>
+             <i class="fa-solid fa-chart-pie"></i>
+                <span>Bảng thống kê</span></a>
+        </li>
+        <li class='nav-item {{#eq tab 'users/manager'}} active {{/eq}}'>
+            <a class='nav-link' href='/users/manager'>
+               <i class="fa-solid fa-users"></i>
+                <span>Quản lý user</span></a>
+        </li>
+        <li class='nav-item {{#eq tab 'orders/manager'}} active {{/eq}}'>
+            <a class='nav-link' href='/orders/manager'>
+               <i class="fa-solid fa-cart-shopping"></i>
+                <span>Quản lý đơn hàng</span></a>
+        </li>
+         <li class='nav-item {{#eq tab 'shops/manager'}} active {{/eq}}'>
+            <a class='nav-link' href='/shops/manager'>
+                <i class="fa-solid fa-shop"></i>
+                <span>Quản lí shop</span></a>
+         </li>
+        
+            {{/if}}
+        
+       
+        <hr class='sidebar-divider my-0' />
+        <div class='sidebar-heading'>
+            User
+        </div>
+        <!-- Nav Item - Dashboard -->
+        <li class='nav-item {{#eq tab 'orders/me'}} active {{/eq}}'>
+            <a class='nav-link' href='/orders/me'>
+                <i class='fa-solid fa-cart-shopping'></i>
+                <span>Đơn hàng của tôi</span></a>
+        </li>
+        <li class='nav-item {{#eq tab 'orders/create'}} active {{/eq}}'>
+            <a class='nav-link' href='/orders/create'>
+                <i class='fa-solid fa-cart-plus'></i>
+                <span>Tạo đơn hàng</span></a>
+        </li>
+
+         
+
+    </ul>

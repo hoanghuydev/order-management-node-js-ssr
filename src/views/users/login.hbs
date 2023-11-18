@@ -1,0 +1,105 @@
+<div class='container'>
+
+    <!-- Outer Row -->
+    <div class='row justify-content-center'>
+
+        <div class='col-sm-12 col-lg-7 col-md-10'>
+
+            <div class='card o-hidden border-0 shadow-lg my-5'>
+                <div class='card-body p-0'>
+                    <!-- Nested Row within Card Body -->
+                    <div class='row'>
+
+                        <div class='col-12'>
+                            <div class='p-5'>
+                                <div class='text-center'>
+                                    <h1 class='h4 text-gray-900 mb-4'>Welcome
+                                        Back!</h1>
+                                </div>
+                                <form
+                                    class='user'
+                                    action='/users/login'
+                                    method='POST'
+                                    id='formLogin'
+                                >
+                                    <div class='form-group'>
+                                        <input
+                                            type='text'
+                                            class='form-control form-control-user'
+                                            id='exampleInputEmail'
+                                            aria-describedby='emailHelp'
+                                            placeholder='Username'
+                                            name='username'
+                                            required
+                                        />
+                                        <div
+                                            class='text-danger fs-6 ms-3'
+                                        >{{usernameValidate}}</div>
+                                    </div>
+                                    <div class='form-group'>
+                                        <input
+                                            type='password'
+                                            class='form-control form-control-user'
+                                            id='exampleInputPassword'
+                                            placeholder='Password'
+                                            name='password'
+                                            required
+                                        />
+                                        <div
+                                            class='text-danger fs-6 ms-3'
+                                        >{{passwordValidate}}</div>
+                                    </div>
+                                    <div class='form-group'>
+                                        <div
+                                            class='custom-control custom-checkbox small'
+                                        >
+                                            <input
+                                                type='checkbox'
+                                                class='custom-control-input'
+                                                id='customCheck'
+                                            />
+                                            <label
+                                                class='custom-control-label'
+                                                for='customCheck'
+                                            >Remember Me</label>
+                                        </div>
+                                    </div>
+                                    <button
+                                        type='submit'
+                                        class='btn btn-primary btn-user btn-block'
+                                    >
+                                        Login
+                                    </button>
+
+                                </form>
+                                <hr />
+                                <div class='text-center'>
+                                    <a
+                                        class='small'
+                                        href='/users/register'
+                                    >Create an Account!</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+{{! Loading }}
+<div
+    class='fixed-top fixed-bottom d-none'
+    id='loadingIndicator'
+    style='background-color: #00000047'
+>
+    <div class='dots-1 m-auto'></div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function(){
+    $('#formLogin').on('submit', function() {
+    $('#loadingIndicator').removeClass('d-none').addClass('d-flex'); }); })
+</script>

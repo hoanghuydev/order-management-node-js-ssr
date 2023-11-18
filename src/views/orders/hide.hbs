@@ -1,0 +1,74 @@
+<div id='wrapper'>
+    {{>sidebar}}
+
+    <div id='content-wrapper' class='d-flex flex-column'>
+        <div id='content'>
+              {{>header}}
+            <div class='container-fluid'>
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/orders/manager">Quản lí đơn hàng</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Đơn hàng ẩn</li>
+  </ol>
+</nav>
+                 <!-- Page Heading -->
+               <div
+                    class='d-sm-flex align-items-center justify-content-between mb-4'
+                >
+                    <h1 class='h3 mb-0 text-gray-800'>Đơn hàng ẩn</h1>
+                   
+                </div>
+
+                <!-- Content Row -->
+                
+                <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Các đơn hàng ẩn</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>Mã đơn hàng</th>
+                                            <th>Mã người nhập đơn</th>
+                                            <th>Shop</th>
+                                            <th>Tài khoản mua</th>
+                                            <th>Trạng thái</th>
+                                            <th>Voucher</th>
+                                            <th>Tổng giá trị đơn hàng</th>
+                                            <th>Mã tiền công</th>
+                                            <th>Tiền công</th>
+                                            <th>Người mua phải trả</th>
+                                            <th>Phí thanh toán</th>
+                                            <th>Phí cố định</th>
+                                        </tr>
+                                    </thead>
+                                    
+                                    <tbody>
+                                        {{#each orders}}
+                                        <tr>
+                                            <td>{{this.orderCode}}</td>
+                                            <td>{{this.userId}}</td>
+                                            <td>{{this.shopName}}</td>
+                                            <td>{{this.purchaseAccount}}</td>
+                                            <td>{{this.status}}</td>
+                                            <td>{{this.voucher}}</td>
+                                            <td>{{this.orderValue}}</td>
+                                            <td>{{this.wageCode}}</td>
+                                            <td>{{this.wageAmount}}</td>
+                                            <td>{{this.buyerPay}}</td>
+                                            <td>{{this.payFee}}</td>
+                                            <td>{{this.staticFee}}</td>
+
+                                        </tr>
+                                       {{/each}}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+    </div>
+

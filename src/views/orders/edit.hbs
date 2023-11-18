@@ -1,0 +1,93 @@
+<div id='wrapper'>
+    {{>sidebar}}
+
+    <div id='content-wrapper' class='d-flex flex-column'>
+        <div id='content'>
+              {{>header}}
+            <div class='container-fluid'>
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/orders/me">Quản lí đơn hàng</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Chỉnh sửa đơn hàng</li>
+  </ol>
+</nav>
+                 <!-- Page Heading -->
+                <div
+                    class='d-sm-flex align-items-center justify-content-between mb-4'
+                >
+                    <h1 class='h3 mb-0 text-gray-800'>Chỉnh sửa đơn hàng</h1>
+                   
+                </div>
+
+               
+                    <div class="card card-body">
+                        <form action="/orders/edit/{{order._id}}?_method=PUT" method="POST" id="formEditOrder">
+                          <div class="mb-3">
+                            <label for="orderCode" class="form-label">Mã đơn hàng</label>
+                            <input type="text" required class="form-control" id="orderCode" name="orderCode" value="{{order.orderCode}}">
+                          </div>
+                           <div class="mb-3">
+                                <label for="shopInfo" class="form-label">Shop</label>
+                                <select id="shopInfo" class="form-select" name="shopInfo">
+                                    {{#each shops}}
+                                  <option value="{{this._id}}/{{this.name}}" {{#eq this._id order.shopId }} selected{{/eq}}>{{this.name}}</option>
+                                    {{/each}}
+                                </select>
+                            </div>
+                             <div class="mb-3">
+                            <label for="purchaseAccount" class="form-label">Tài khoản mua</label>
+                            <input type="text" required class="form-control" id="purchaseAccount" name="purchaseAccount" value="{{order.purchaseAccount}}">
+                          </div>
+                           <div class="mb-3">
+                            <label for="status" class="form-label">Trạng thái</label>
+                            <input type="text" required class="form-control" id="status" name="status" value="{{order.status}}">
+                          </div>
+                          <div class="mb-3">
+                            <label for="voucher" class="form-label">Voucher</label>
+                            <input type="text" required  class="form-control" id="voucher" name="voucher" value="{{order.voucher}}">
+                          </div>
+                          
+                          <div class="mb-3">
+                            <label for="orderValue" class="form-label">Tổng giá trị đơn hàng</label>
+                            <input type="text" required  class="form-control" id="orderValue" name="orderValue" value="{{order.orderValue}}">
+                          </div>
+                          <div class="mb-3">
+                            <label for="wageCode" class="form-label">Mã tiền công</label>
+                            <input type="text" required readonly disabled class="form-control" id="wageCode" name="wageCode" value="{{order.voucher}}/{{order.orderValue}}">
+                          </div>
+                          <div class="mb-3">
+                            <label for="wageAmount" class="form-label">Tiền công</label>
+                            <input type="text" required class="form-control" id="wageAmount" name="wageAmount" value="{{order.wageAmount}}">
+                          </div>
+                          <div class="mb-3">
+                            <label for="buyerPay" class="form-label">Người mua phải trả</label>
+                            <input type="text" required  class="form-control" id="buyerPay" name="buyerPay" value="{{order.buyerPay}}">
+                          </div>
+                           <div class="mb-3">
+                            <label for="payFee" class="form-label">Phí thanh toán</label>
+                            <input type="text" required  class="form-control" id="payFee" name="payFee" value="{{order.payFee}}">
+                          </div>
+                          <div class="mb-3">
+                            <label for="staticFee" class="form-label">Phí cố định</label>
+                            <input type="text" required  class="form-control" id="staticFee" name="staticFee" value="{{order.staticFee}}">
+                          </div>
+                          <button type="submit" class="btn btn-primary" {{#eq2var this.status "Chờ thanh toán" "Đã thanh toán"}}disabled{{/eq2var}}>Cập nhật đơn hàng</button>
+                        </form>
+                    </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+    <div class='fixed-top fixed-bottom d-none' id='loadingIndicator'>
+        <div class='dots-1 m-auto'></div>
+    </div>
+    <script>
+      document.addEventListener('DOMContentLoaded', function(){
+          $('#formEditOrder').on('submit', function() {
+            $('#loadingIndicator').removeClass('d-none').addClass('d-flex');
+        });
+      })
+    </script>
+

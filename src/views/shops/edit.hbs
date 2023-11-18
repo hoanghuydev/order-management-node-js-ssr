@@ -1,0 +1,56 @@
+<div id='wrapper'>
+    {{>sidebar}}
+
+    <div id='content-wrapper' class='d-flex flex-column'>
+        <div id='content'>
+              {{>header}}
+            <div class='container-fluid'>
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/shops/manager">Quản lí cửa hàng</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Chỉnh sửa cửa hàng</li>
+  </ol>
+</nav>
+                 <!-- Page Heading -->
+                <div
+                    class='d-sm-flex align-items-center justify-content-between mb-4'
+                >
+                    <h1 class='h3 mb-0 text-gray-800'>Chỉnh sửa cửa hàng</h1>
+                   
+                </div>
+
+               
+                    <div class="card card-body">
+                        <form action="/shops/edit/{{shop._id}}?_method=PUT" method="POST" id="formEditShop">
+                          <div class="mb-3">
+                            <label for="exampleInputEmail1" class="form-label">Tên shop</label>
+                            <input type="text" required class="form-control" id="exampleInputEmail1" name="name" value="{{shop.name}}">
+                          </div>
+                           <div class="mb-3">
+                                <label for="typeShop" class="form-label">Loại shop</label>
+                                <select id="typeShop" class="form-select" name="type">
+                                  <option value="freeship" {{#eq shop.type 'freeship' }} selected{{/eq}}>Freeship</option>
+                                  <option value="notfreeship"  {{#eq shop.type 'notfreeship' }} selected{{/eq}}>Không freeship</option>
+
+                                </select>
+                            </div>
+                          <button type="submit" class="btn btn-primary">Cập nhật cửa hàng</button>
+                        </form>
+                    </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+    <div class='fixed-top fixed-bottom d-none' id='loadingIndicator'>
+        <div class='dots-1 m-auto'></div>
+    </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function(){
+      $('#formEditShop').on('submit', function() {
+            $('#loadingIndicator').removeClass('d-none').addClass('d-flex');
+        });
+  })
+</script>
