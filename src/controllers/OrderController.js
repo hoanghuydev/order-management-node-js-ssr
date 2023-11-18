@@ -262,7 +262,7 @@ class OrderController {
             if (req.file?.filename == null || req.file?.filename == undefined) {
                 res.send('No files');
             } else {
-                const filePath = 'tmp/' + req.file?.filename;
+                const filePath = '/tmp/' + req.file?.filename;
                 if (!fs.existsSync(filePath)) {
                     return res.send({ error: 'File not found' });
                 }
