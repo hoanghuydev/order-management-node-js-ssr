@@ -74,31 +74,62 @@ class UserController {
         }
     }
     async vertifyUser(req, res, next) {
-        const { userIds } = req.body;
         try {
-            const updatePromises = userIds.map((userId) => {
-                return new Promise((resolve, reject) => {
-                    User.updateOne(
-                        { _id: userId },
-                        {
-                            $set: {
-                                isVertify: true,
-                            },
-                        }
-                    )
-                        .exec() // Chuyển đổi kết quả thành promise
-                        .then(() => resolve(`Đã cập nhật đơn hàng ${userId}`))
-                        .catch((error) =>
-                            reject(
-                                `Lỗi khi cập nhật đơn hàng ${userId}: ${error}`
+            const { userIds } = req.body;
+
+            let updatePromises;
+
+            if (typeof userIds === 'string') {
+                updatePromises = [
+                    new Promise((resolve, reject) => {
+                        User.updateOne(
+                            { _id: userIds },
+                            {
+                                $set: {
+                                    isVertify: true,
+                                },
+                            }
+                        )
+                            .exec()
+                            .then(() =>
+                                resolve(`Đã cập nhật đơn hàng ${userIds}`)
                             )
-                        );
+                            .catch((error) =>
+                                reject(
+                                    `Lỗi khi cập nhật đơn hàng ${userIds}: ${error}`
+                                )
+                            );
+                    }),
+                ];
+            } else {
+                updatePromises = userIds.map((userId) => {
+                    return new Promise((resolve, reject) => {
+                        User.updateOne(
+                            { _id: userId },
+                            {
+                                $set: {
+                                    isVertify: true,
+                                },
+                            }
+                        )
+                            .exec()
+                            .then(() =>
+                                resolve(`Đã cập nhật đơn hàng ${userId}`)
+                            )
+                            .catch((error) =>
+                                reject(
+                                    `Lỗi khi cập nhật đơn hàng ${userId}: ${error}`
+                                )
+                            );
+                    });
                 });
-            });
+            }
+
             await Promise.all(updatePromises);
             return res.redirect('/users/manager');
         } catch (error) {
-            throw new Error(error);
+            console.error('Error updating users:', error);
+            return res.status(500).send({ error: 'Internal Server Error' });
         }
     }
     async updateBank(req, res) {

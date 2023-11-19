@@ -169,7 +169,8 @@ class OrderController {
                 req.session.user.admin
             ) {
                 await Order.findByIdAndDelete(req.params.orderId);
-                if (req.session.user.admin) res.redirect('/orders/manager');
+                if (req.session.user.admin)
+                    return res.redirect('/orders/manager');
                 return res.redirect('/orders/me');
             } else {
                 return res.redirect('/error');
