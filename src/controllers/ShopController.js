@@ -9,7 +9,7 @@ class ShopController {
             User.findOne({ _id: req.session.user._id }),
         ]);
 
-        res.render('shops/manager', {
+        return res.render('shops/manager', {
             me: mongooseToObj(me),
             shops: multipleMongooseToObj(shops),
             tab: 'shops/manager',
@@ -26,7 +26,7 @@ class ShopController {
                 shop: mongooseToObj(shop),
                 tab: 'shops/manager',
             });
-        res.redirect('/error');
+        return res.redirect('/error');
     }
     async editShop(req, res) {
         const { name, type } = req.body;
@@ -34,20 +34,20 @@ class ShopController {
             { _id: req.params.shopId },
             { $set: { name, type } }
         );
-        res.redirect('/shops/manager');
+        return res.redirect('/shops/manager');
     }
     async deleteShop(req, res) {
         await Shop.deleteOne({ _id: req.params.shopId });
-        res.redirect('/shops/manager');
+        return res.redirect('/shops/manager');
     }
     async createShop(req, res) {
         try {
             const { name, type } = req.body;
             const newShop = new Shop({ name, type });
             await newShop.save();
-            res.redirect('/shops/manager');
+            return res.redirect('/shops/manager');
         } catch (error) {
-            res.render('Error' + error);
+            return res.render('Error' + error);
         }
     }
 }

@@ -170,9 +170,9 @@ class OrderController {
             ) {
                 await Order.findByIdAndDelete(req.params.orderId);
                 if (req.session.user.admin) res.redirect('/orders/manager');
-                res.redirect('/orders/me');
+                return res.redirect('/orders/me');
             } else {
-                res.redirect('/error');
+                return res.redirect('/error');
             }
         } catch (error) {
             console.error('Error fetching data:', error);
@@ -203,7 +203,7 @@ class OrderController {
             });
 
             await Promise.all(updatePromises);
-            res.redirect('/orders/manager');
+            return res.redirect('/orders/manager');
         } catch (error) {
             console.error(
                 'Có lỗi xảy ra trong quá trình xử lý thanh toán:',
@@ -230,7 +230,7 @@ class OrderController {
                 await newOrder.save().then((s) => {
                     console.log(s);
                 });
-                res.redirect('/orders/me');
+                return res.redirect('/orders/me');
             } else if (
                 orderExits &&
                 orderExits.userId === null &&
@@ -245,12 +245,12 @@ class OrderController {
                         },
                     }
                 );
-                res.redirect('/orders/me');
+                return res.redirect('/orders/me');
             } else {
-                res.redirect('/orders/create?sucess=false');
+                return res.redirect('/orders/create?sucess=false');
             }
         } catch (error) {
-            res.send('Vui lòng kiểm tra lại đơn hàng');
+            return res.send('Vui lòng kiểm tra lại đơn hàng');
         }
     }
     async deleteAllOrder(req, res, next) {
@@ -260,7 +260,7 @@ class OrderController {
     async updateOrders(req, res) {
         try {
             if (req.file?.filename == null || req.file?.filename == undefined) {
-                res.send('No files');
+                return res.send('No files');
             } else {
                 const filePath = '/tmp/' + req.file?.filename;
                 if (!fs.existsSync(filePath)) {
@@ -422,10 +422,10 @@ class OrderController {
                 } catch (error) {
                     console.error('Error processing orders:', error);
                 }
-                res.redirect('/orders/manager?update_order=success');
+                return res.redirect('/orders/manager?update_order=success');
             }
         } catch (err) {
-            res.send(err);
+            return res.send(err);
         }
     }
 }

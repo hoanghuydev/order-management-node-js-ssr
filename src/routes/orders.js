@@ -9,7 +9,6 @@ router.get('/hide', authAdmin, OrderController.renderOrderHide);
 router.get('/create', auth, OrderController.renderCreateOrder);
 router.get('/edit/:orderId', authAdmin, OrderController.renderOrderEdit);
 router.put('/edit/:orderId', authAdmin, OrderController.editOrder);
-router.get('/delete-all-order', authAdmin, OrderController.deleteAllOrder);
 router.delete('/delete/:orderId', auth, OrderController.deleteOrder);
 router.put('/pay', authAdmin, OrderController.payOrder);
 router.post('/create', auth, OrderController.createOrder);

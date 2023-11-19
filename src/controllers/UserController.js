@@ -6,16 +6,16 @@ const { multipleMongooseToObj, mongooseToObj } = require('../util/mongoose');
 class UserController {
     async renderRegister(req, res) {
         if (req.session?.user) {
-            res.redirect('/');
+            return res.redirect('/');
         } else {
-            res.render('users/register');
+            return res.render('users/register');
         }
     }
     async renderLogin(req, res) {
         if (req.session?.user) {
-            res.redirect('/');
+            return res.redirect('/');
         } else {
-            res.render('users/login');
+            return res.render('users/login');
         }
     }
     async renderManagerUser(req, res) {
@@ -31,7 +31,7 @@ class UserController {
                     tab: 'users/manager',
                 });
             }
-            res.redirect('/error');
+            return res.redirect('/error');
         } catch (err) {}
     }
     async renderProfile(req, res) {
@@ -65,7 +65,7 @@ class UserController {
                 if (err) {
                     console.error('Error destroying session:', err);
                 } else {
-                    res.redirect('/users/login');
+                    return res.redirect('/users/login');
                 }
             });
         } catch (error) {
@@ -96,7 +96,7 @@ class UserController {
                 });
             });
             await Promise.all(updatePromises);
-            res.redirect('/users/manager');
+            return res.redirect('/users/manager');
         } catch (error) {
             throw new Error(error);
         }
@@ -114,7 +114,7 @@ class UserController {
                     },
                 }
             );
-            res.redirect('/');
+            return res.redirect('/');
         } catch (error) {}
     }
     async register(req, res) {
@@ -184,7 +184,7 @@ class UserController {
                 bankId: user.bankId,
             };
             req.session.save();
-            res.redirect('/');
+            return res.redirect('/');
             // Send the token in the response
         } catch (err) {
             console.error('Error during login:', err);

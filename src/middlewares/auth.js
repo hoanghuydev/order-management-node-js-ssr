@@ -5,7 +5,7 @@ const isLogin = async (req, res, next) => {
         next();
     } else {
         console.log('Authentication');
-        res.redirect('/users/login');
+        return res.redirect('/users/login');
     }
 };
 const auth = async (req, res, next) => {
@@ -25,7 +25,7 @@ const auth = async (req, res, next) => {
             }
         } else {
             console.log('Authentication');
-            res.redirect('/users/login');
+            return res.redirect('/users/login');
         }
     } catch (error) {
         throw new Error(error);
@@ -36,7 +36,7 @@ const authWithUserId = async (req, res, next) => {
         if (req.params.userId == req.session.user._id || req.user.admin) {
             next();
         } else {
-            res.send('You are not allowed to access');
+            return res.send('You are not allowed to access');
         }
     });
 };
@@ -45,7 +45,7 @@ const authAdmin = async (req, res, next) => {
         if (req.session.user.admin) {
             next();
         } else {
-            res.redirect('/orders/me');
+            return res.redirect('/orders/me');
         }
     });
 };
