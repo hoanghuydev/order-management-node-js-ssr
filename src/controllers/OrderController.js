@@ -183,25 +183,51 @@ class OrderController {
     async payOrder(req, res) {
         const { orderIds } = req.body;
         try {
-            const updatePromises = orderIds.map((orderId) => {
-                return new Promise((resolve, reject) => {
-                    Order.updateOne(
-                        { _id: orderId },
-                        {
-                            $set: {
-                                status: 'Đã thanh toán',
-                            },
-                        }
-                    )
-                        .exec() // Chuyển đổi kết quả thành promise
-                        .then(() => resolve(`Đã cập nhật đơn hàng ${orderId}`))
-                        .catch((error) =>
-                            reject(
-                                `Lỗi khi cập nhật đơn hàng ${orderId}: ${error}`
+            if (typeof orderIds === 'string') {
+                const updatePromises = [
+                    new Promise((resolve, reject) => {
+                        Order.updateOne(
+                            { _id: orderIds },
+                            {
+                                $set: {
+                                    status: 'Đã thanh toán',
+                                },
+                            }
+                        )
+                            .exec() // Chuyển đổi kết quả thành promise
+                            .then(() =>
+                                resolve(`Đã cập nhật đơn hàng ${orderId}`)
                             )
-                        );
+                            .catch((error) =>
+                                reject(
+                                    `Lỗi khi cập nhật đơn hàng ${orderId}: ${error}`
+                                )
+                            );
+                    }),
+                ];
+            } else {
+                const updatePromises = orderIds.map((orderId) => {
+                    return new Promise((resolve, reject) => {
+                        Order.updateOne(
+                            { _id: orderId },
+                            {
+                                $set: {
+                                    status: 'Đã thanh toán',
+                                },
+                            }
+                        )
+                            .exec() // Chuyển đổi kết quả thành promise
+                            .then(() =>
+                                resolve(`Đã cập nhật đơn hàng ${orderId}`)
+                            )
+                            .catch((error) =>
+                                reject(
+                                    `Lỗi khi cập nhật đơn hàng ${orderId}: ${error}`
+                                )
+                            );
+                    });
                 });
-            });
+            }
 
             await Promise.all(updatePromises);
             return res.redirect('/orders/manager');
@@ -297,15 +323,16 @@ class OrderController {
                             shopName: shop.name,
                             shopId: shop._id,
                             status: 'Chờ người dùng nhập',
-                            wageCode:
-                                Number(order['Mã giảm giá của Shopee'] / 1000) +
-                                '/' +
-                                Number(order['Tổng giá bán (sản phẩm)'] / 1000),
+
                             buyerPay: Number(
                                 order['Tổng số tiền người mua thanh toán']
                             ),
                             payFee: Number(order['Phí thanh toán']),
                             staticFee: Number(order['Phí cố định']),
+                            wageCode:
+                                Number(order['Mã giảm giá của Shopee'] / 1000) +
+                                '/' +
+                                Number(order['Tổng giá bán (sản phẩm)'] / 1000),
                         }).toObject();
                     }
                 });
@@ -326,6 +353,13 @@ class OrderController {
                     }
                     return acc;
                 }, []);
+                orderMap = orderMap.map((order) => {
+                    return {
+                        ...order,
+                        wageCode: order.voucher + '/' + order.orderValue,
+                    };
+                });
+
                 const listorderCode = orderMap.map((order) => order.orderCode);
                 const [
                     doneOrders,
