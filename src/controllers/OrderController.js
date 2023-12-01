@@ -183,8 +183,9 @@ class OrderController {
     async payOrder(req, res) {
         const { orderIds } = req.body;
         try {
+            let updatePromises = [];
             if (typeof orderIds === 'string') {
-                const updatePromises = [
+                updatePromises = [
                     new Promise((resolve, reject) => {
                         Order.updateOne(
                             { _id: orderIds },
@@ -206,7 +207,7 @@ class OrderController {
                     }),
                 ];
             } else {
-                const updatePromises = orderIds.map((orderId) => {
+                updatePromises = orderIds.map((orderId) => {
                     return new Promise((resolve, reject) => {
                         Order.updateOne(
                             { _id: orderId },
