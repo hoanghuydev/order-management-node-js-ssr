@@ -354,12 +354,12 @@ class OrderController {
                     }
                     return acc;
                 }, []);
-                orderMap = orderMap.map((order) => {
-                    return {
-                        ...order,
-                        wageCode: order.voucher + '/' + order.orderValue,
-                    };
-                });
+                // orderMap = orderMap.map((order) => {
+                //     return {
+                //         ...order,
+                //         wageCode: order.voucher + '/' + order.orderValue,
+                //     };
+                // });
 
                 const listorderCode = orderMap.map((order) => order.orderCode);
                 const [
