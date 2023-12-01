@@ -243,7 +243,8 @@ class OrderController {
 
     async createOrder(req, res, next) {
         try {
-            const { orderCode, purchaseAccount, shopId } = req.body;
+            let { orderCode, purchaseAccount, shopId } = req.body;
+            orderCode = orderCode.trim();
             const orderExits = await Order.findOne({ orderCode });
             const shop = await Shop.findOne({ _id: shopId });
             if (!orderExits) {

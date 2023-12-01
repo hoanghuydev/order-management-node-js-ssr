@@ -80,7 +80,7 @@
                                         <tbody>
                                             {{#each orders}}
                                             <tr>
-                                                <td>{{#eq this.status 'Chờ thanh toán'}}<input type="checkbox" value="{{this._id}}" name="orderIds">{{/eq}}</td>
+                                                <td>{{#eq this.status 'Chờ thanh toán'}}<input type="checkbox" value="{{this._id}}" name="orderIds" style="width: 20px;height: 20px;">{{/eq}}</td>
                                                 <td>{{this.orderCode}}</td>
                                                 <td data-bs-toggle="modal" data-bs-target="#bankingInfo" data-order-code="{{this.orderCode}}" data-user-id="{{this.userId}}" data-wage-amount="{{this.wageAmount}}" id="btnShowBankInfo" >{{this.userId}}</td>
                                                 <td>{{this.shopName}}</td>
