@@ -197,11 +197,11 @@ class OrderController {
                         )
                             .exec() // Chuyển đổi kết quả thành promise
                             .then(() =>
-                                resolve(`Đã cập nhật đơn hàng ${orderId}`)
+                                resolve(`Đã cập nhật đơn hàng ${orderIds}`)
                             )
                             .catch((error) =>
                                 reject(
-                                    `Lỗi khi cập nhật đơn hàng ${orderId}: ${error}`
+                                    `Lỗi khi cập nhật đơn hàng ${orderIds}: ${error}`
                                 )
                             );
                     }),
