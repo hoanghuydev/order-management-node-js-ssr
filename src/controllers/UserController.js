@@ -184,7 +184,6 @@ class UserController {
 
             // Find the user by username
             const user = await User.findOne({ username });
-
             if (!user) {
                 return res.render('users/login', {
                     usernameValidate: 'User not found',

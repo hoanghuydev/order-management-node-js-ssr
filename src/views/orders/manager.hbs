@@ -39,7 +39,7 @@
                         </div>
                          <div class="mb-3">
                                 <label for="typeShop" class="form-label">Shop</label>
-                                <select id="typeShop" class="form-select" name="shopId" required>
+                                <select id="typeShop" class="" name="shopId" required>
                                         <option value="" selected disabled>-- Chọn cửa hàng --</option>
                                     {{#each shops}}
                                         <option value="{{this._id}}">{{this.name}}</option>
@@ -50,14 +50,58 @@
                     </form>
                     </div>
                 </div>
+                {{!-- Filter Order --}}
+                <div class="d-flex my-5 px-1 justify-content-around flex-wrap">
+                  <div class="d-flex flex-column mx-1">
+                    <label for="orderCode" class="mx-auto">Mã đơn hàng</label>
+                    <input id='orderCode' name="orderCode" placeholder="Nhập mã đơn hàng"/>
+                  </div>
+                  {{!-- Status --}}
+                  <div class="d-flex flex-column mx-1">
+                    <label for="status" class="mx-auto">Trạng thái</label>
+                    <select class="form-select form-select-sm" id="status" name="status">
+                      <option value="" >Tất cả</option>
+                      <option value="Chờ xác nhận" >Chờ xác nhận</option>
+                      <option value="Chờ thanh toán">Chờ thanh toán</option>
+                      <option value="Đã thanh toán" selected>Đã thanh toán</option>
+                    </select>
+                  </div>
+                   {{!-- ShopId --}}
+                  <div class="d-flex flex-column mx-1">
+                    <label for="shopId" class="mx-auto">Cửa hàng</label>
+                    <select class="form-select form-select-sm" id="shopId" name="shopId">
+                      <option value="" selected>Tất cả</option>
+                            {{#each shops}}
+                                <option value="{{this._id}}">{{this.name}}</option>
+                            {{/each}}
+                    </select>
+                  </div>
+                   {{!-- userId --}}
+                  <div class="d-flex flex-column mx-1">
+                    <label for="userId" class="mx-auto">Người tạo đơn</label>
+                    <select class="form-select form-select-sm" id="userId" name="userId">
+                      <option value="" selected>Tất cả</option>
+                            {{#each users}}
+                                <option value="{{this._id}}">{{this.username}}</option>
+                            {{/each}}
+                    </select>
+                  </div>
+                   {{!-- buyerPay --}}
+                  <div class="d-flex flex-column mx-1">
+                    <label for="buyerPay" class="mx-auto">Tài khoản mua</label>
+                    <input  id="buyerPay" name="buyerPay" placeholder="Nhập tài khoản mua"/>
+                  </div>
+                  <button class="btn btn-primary px-5 mx-2 py-2 my-auto" id="btnFilterOrder">Lọc</button>
+                </div>
                 <div class="card shadow mb-4">
                         <div class="card-header py-3">
                             <h6 class="m-0 font-weight-bold text-primary">Tất cả đơn hàng</h6>
                         </div>
+                        
                         <form action="/orders/pay?_method=PUT" method="POST" id="formPayOrder">
-                            <div class="card-body">
+                            <div class="card-body" style="max-height: 80vh; overflow-y: auto;">
                                 <div class="table-responsive">
-                                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                    <table class="table table-bordered" id="noDatatable" width="100%" cellspacing="0">
                                         <thead>
                                             <tr>
                                                 <th>Đã thanh toán</th>
@@ -77,32 +121,13 @@
                                             </tr>
                                         </thead>
 
-                                        <tbody>
-                                            {{#each orders}}
-                                            <tr>
-                                                <td>{{#eq this.status 'Chờ thanh toán'}}<input type="checkbox" value="{{this._id}}" name="orderIds" style="width: 20px;height: 20px;">{{/eq}}</td>
-                                                <td>{{this.orderCode}}</td>
-                                                <td data-bs-toggle="modal" data-bs-target="#bankingInfo" data-order-code="{{this.orderCode}}" data-user-id="{{this.userId}}" data-wage-amount="{{this.wageAmount}}" id="btnShowBankInfo" >{{this.userId}}</td>
-                                                <td>{{this.shopName}}</td>
-                                                <td>{{this.purchaseAccount}}</td>
-                                                <td>{{this.status}}</td>
-                                                <td>{{this.voucher}}</td>
-                                                <td>{{this.orderValue}}</td>
-                                                <td>{{this.wageCode}}</td>
-                                                <td>{{this.wageAmount}}</td>
-                                                <td>{{this.buyerPay}}</td>
-                                                <td>{{this.payFee}}</td>
-                                                <td>{{this.staticFee}}</td>
-                                                <td class="d-flex flex-column justify-content-center align-items-center">
-                                                     <a href="/orders/edit/{{this._id}}" class="btn btn-primary mx-2"><i class="fa-solid fa-pen-to-square text-white"></i></a>
-                                                    <div class="btn btn-danger " data-bs-toggle="modal" data-bs-target="#deleteorder" data-order-id="{{this._id}}"><i class="fa-solid fa-trash text-white"></i></div>
-                                                </td>
-                                            </tr>
-                                           {{/each}}
+                                        <tbody class="list-order">
+                                           
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
+                            <ul id="paginationOrder" class="pagination-md ms-3 my-2"></ul>
                             <button class="btn btn-success ms-3" type="submit" id="payOrder">Đã thanh toán</button>
                         </form>
 
@@ -170,83 +195,4 @@
   </div>
 </div>
    <form action="/orders/delete?_method=DELETE" method="POST" id="orderDelete" class="d-none" name="delete-order-form"></form>
-<script>
-    document.addEventListener('DOMContentLoaded', function(){
-        {{!-- Show Loading --}}
-        $('#formUpdateOrder').on('submit', function() {
-            $('#loadingIndicator').removeClass('d-none').addClass('d-flex');
-        });
-         $('#orderDelete').on('submit', function() {
-            $('#loadingIndicator').removeClass('d-none').addClass('d-flex');
-        });
-        $('#formPayOrder').on('submit', function() {
-            $('#loadingIndicator').removeClass('d-none').addClass('d-flex');
-        });
-        {{!-- Show toast --}}
-
-        const url = new URL(window.location.href)
-        const query = url.searchParams;
-        if (query.get('update_order') === 'success') {
-            const toastElement = document.getElementById('liveToast');
-            const toastBootstrap = new bootstrap.Toast(toastElement);
-            toastBootstrap.show();
-        }
-        {{!-- Show banking modal --}}
-        
-         let userId;
-         let wageAmount;
-         let orderCode
-        const bankModal = document.getElementById('bankingInfo')
-        if (bankModal) {
-          bankModal.addEventListener('show.bs.modal', function(event) {
-            const button = event.relatedTarget
-            userId = button.getAttribute('data-user-id')
-            wageAmount = button.getAttribute('data-wage-amount')
-            orderCode = button.getAttribute('data-order-code')
-            
-           fetch('/users/info/'+userId).then((user) => user.json()).then((user)=> {
-            let bankQr = `https://img.vietqr.io/image/${user.bankCode}-${user.bankNumber}-compact2.png?amount=${wageAmount}&addInfo=${orderCode}&accountName=${user.bankHolder}`
-            let bankText = `<strong>Họ và tên tài khoản web: </strong>${user.fullName}.<br><strong>Chủ tài khoản: </strong>${user.bankHolder}.<br> <strong>Số tài khoản: </strong> ${user.bankNumber}.<br> <strong>Mã ngân hàng :</strong> ${user.bankCode}`;
-             $('#loadingQRCode').removeClass('d-flex').addClass('d-none');
-            $('#bankingImg').attr('src', bankQr);
-            $('#bankingText').html(bankText);
-            })
-          })
-          bankModal.addEventListener('hidden.bs.modal', function(event) {
-             $('#loadingQRCode').removeClass('d-none').addClass('d-flex');
-            $('#bankingImg').attr('src', "");
-            $('#bankingText').html("");
-          })
-        }
-
-        {{!-- Show Modal Delete Order --}}
-        let orderId;
-       const deleteForm = document.forms['delete-order-form']
-        const deleteorderModal = document.getElementById('deleteorder');
-        if (deleteorderModal) {
-          deleteorderModal.addEventListener('show.bs.modal', function(event) {
-            const button = event.relatedTarget
-            orderId = button.getAttribute('data-order-id')
-            
-          })
-        }
-        $('.btn-delete-order').on('click', function(){
-            deleteForm.action = `/orders/delete/${orderId}?_method=DELETE`;
-            deleteForm.submit()
-       })
-        {{!-- Change status to Đã thanh toán --}}
-        function validateFormPay() {
-            const checked = $("input:checkbox[name^='orderIds']:checked").length;
-            if(!checked) {
-                $("#payOrder").attr('disabled','');
-
-            } else {
-                $("#payOrder").removeAttr('disabled');
-            }
-        }
-        validateFormPay()
-        $("input:checkbox[name^='orderIds']").on('change', function () {
-            validateFormPay()
-        });      
-    });
-</script>
+   <script src="/js/orders_manager.js"></script>

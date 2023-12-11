@@ -18,16 +18,17 @@
                 <div class="card card-body">
                         <form action="/orders/create" method="POST" id="formCreateOrder">
                           <div class="mb-3">
-                            <label for="orderCode" class="form-label">Mã đơn hàng</label>
-                            <input type="text" required class="form-control" id="orderCode" name="orderCode">
-                             <div class="form-text" id="basic-addon4">Có thể chỉ nhập mã đơn hàng, hệ thống sẽ tự update</div>
+                            <label for="listOrderCode" class="form-label fw-semibold">Mã đơn hàng</label>
+                            <textarea type="text" required class="form-control" id="listOrderCode" name="listOrderCode" rows="3"></textarea>
+                              
+                             <div class="form-text" id="basic-addon4">Có thể chỉ nhập mã đơn hàng, hệ thống sẽ tự update. Vui lòng <code>xuống dòng</code> nếu nhập nhiều đơn hàng</div>
                           </div>
                           <div class="mb-3">
-                            <label for="purchaseAccount" class="form-label">Nick mua</label>
+                            <label for="purchaseAccount" class="form-label fw-semibold">Nick mua</label>
                             <input type="text" value="" class="form-control" id="purchaseAccount" name="purchaseAccount">
                           </div>
                             <div class="mb-3">
-                                <label for="shopId" class="form-label">Shop</label>
+                                <label for="shopId" class="form-label fw-semibold">Shop</label>
                                 <select id="shopId" class="form-select" name="shopId">
                                         <option value="" selected disabled>-- Chọn cửa hàng --</option>
                                     {{#each shops}}

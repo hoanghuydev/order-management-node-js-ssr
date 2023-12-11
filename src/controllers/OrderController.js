@@ -5,24 +5,77 @@ const { multipleMongooseToObj, mongooseToObj } = require('../util/mongoose');
 const Order = require('../models/Order');
 const User = require('../models/User');
 const Shop = require('../models/Shop');
+const { response } = require('express');
 class OrderController {
+    async getOrderWithFilter(req, res, next) {
+        try {
+            const { orderCode, userId, shopId, buyerPay, status } = req.query;
+            const { pageNumber, pageSize } = req.query;
+            const skip = (pageNumber - 1) * pageSize;
+            const criteria = {
+                orderCode,
+                userId,
+                shopId,
+                buyerPay,
+                status,
+            };
+
+            const filter = Object.fromEntries(
+                Object.entries(criteria).filter(
+                    ([key, value]) => value !== null && value !== undefined
+                )
+            );
+            if (!filter.status) {
+                filter.status = { $ne: 'Chờ người dùng nhập' };
+            }
+
+            const orders = await Order.find(filter).skip(skip).limit(pageSize);
+            const totalOrders = await Order.countDocuments(filter);
+            res.status(200).json({
+                orders: [...orders],
+                totalOrders,
+                pageNumber,
+            });
+        } catch (error) {
+            res.status(500).json(error);
+        }
+    }
     async renderMyOrders(req, res) {
         try {
             const user = req.session.user;
-            const [myOrders, orderWaitConfirm, orderWaitPay, orderDone, me] =
-                await Promise.all([
-                    Order.find({ userId: user._id }),
-                    Order.find({ userId: user._id, status: 'Chờ xác nhận' }),
-                    Order.find({ userId: user._id, status: 'Chờ thanh toán' }),
-                    Order.find({ userId: user._id, status: 'Đã thanh toán' }),
-                    User.findOne({ _id: req.session.user._id }),
-                ]);
-
-            const countOrderWaitConfirm = orderWaitConfirm.length;
-            const countOrderWaitPay = orderWaitPay.length;
-            const countOrderDone = orderDone.length;
+            const [
+                myOrders,
+                countOrderWaitConfirm,
+                countOrderWaitPay,
+                countOrderDone,
+                orderDone,
+                me,
+            ] = await Promise.all([
+                Order.find({ userId: user._id }),
+                Order.countDocuments({
+                    userId: user._id,
+                    status: 'Chờ xác nhận',
+                }),
+                Order.countDocuments({
+                    userId: user._id,
+                    status: 'Chờ thanh toán',
+                }),
+                Order.countDocuments({
+                    userId: user._id,
+                    status: 'Đã thanh toán',
+                }),
+                Order.find({
+                    userId: user._id,
+                    status: 'Đã thanh toán',
+                }),
+                User.findOne({ _id: req.session.user._id }),
+            ]);
             const investmentMoney = myOrders.reduce(
                 (total, order) => total + order.buyerPay,
+                0
+            );
+            const wageAmount = orderDone.reduce(
+                (total, order) => total + order.wageAmount,
                 0
             );
             return res.render('orders/me', {
@@ -32,6 +85,7 @@ class OrderController {
                 countOrderWaitConfirm,
                 countOrderWaitPay,
                 countOrderDone,
+                wageAmount,
                 tab: 'orders/me',
             });
         } catch (error) {
@@ -41,17 +95,15 @@ class OrderController {
     }
     async renderOrderManager(req, res, next) {
         try {
-            const [orders, shops, me] = await Promise.all([
-                Order.find({
-                    status: { $ne: 'Chờ người dùng nhập' },
-                }),
+            const [shops, me, users] = await Promise.all([
                 Shop.find({}),
                 User.findOne({ _id: req.session.user._id }),
+                User.find({ isVertify: true }),
             ]);
             return res.render('orders/manager', {
-                orders: multipleMongooseToObj(orders),
                 shops: multipleMongooseToObj(shops),
                 me: mongooseToObj(me),
+                users: multipleMongooseToObj(users),
                 tab: 'orders/manager',
             });
         } catch (error) {
@@ -115,6 +167,7 @@ class OrderController {
             console.log(error);
         }
     }
+
     async editOrder(req, res, next) {
         try {
             const order = await Order.findOne({ _id: req.params.orderId });
@@ -243,41 +296,42 @@ class OrderController {
 
     async createOrder(req, res, next) {
         try {
-            let { orderCode, purchaseAccount, shopId } = req.body;
-            orderCode = orderCode.trim();
-            const orderExits = await Order.findOne({ orderCode });
-            const shop = await Shop.findOne({ _id: shopId });
-            if (!orderExits) {
-                const newOrder = new Order({
-                    userId: req.session.user._id,
-                    purchaseAccount,
-                    orderCode,
-                    shopId,
-                    shopName: shop?.name,
-                    status: 'Chờ xác nhận',
-                });
-                await newOrder.save().then((s) => {
-                    console.log(s);
-                });
-                return res.redirect('/orders/me');
-            } else if (
-                orderExits &&
-                orderExits.userId === null &&
-                orderExits.status === 'Chờ người dùng nhập'
-            ) {
-                await Order.updateOne(
-                    { orderCode },
-                    {
-                        $set: {
-                            status: 'Chờ thanh toán',
-                            userId: req.session.user._id,
-                        },
-                    }
-                );
-                return res.redirect('/orders/me');
-            } else {
-                return res.redirect('/orders/create?sucess=false');
+            let { listOrderCode, purchaseAccount, shopId } = req.body;
+            listOrderCode = listOrderCode.trim();
+            listOrderCode = listOrderCode.split(`\r\n`);
+            for (let orderCode of listOrderCode) {
+                orderCode = orderCode.trim();
+                const orderExits = await Order.findOne({ orderCode });
+                const shop = await Shop.findOne({ _id: shopId });
+                if (!orderExits) {
+                    const newOrder = new Order({
+                        userId: req.session.user._id,
+                        purchaseAccount,
+                        orderCode,
+                        shopId,
+                        shopName: shop?.name,
+                        status: 'Chờ xác nhận',
+                    });
+                    await newOrder.save().then((s) => {
+                        console.log(s);
+                    });
+                } else if (
+                    orderExits &&
+                    orderExits.userId === null &&
+                    orderExits.status === 'Chờ người dùng nhập'
+                ) {
+                    await Order.updateOne(
+                        { orderCode },
+                        {
+                            $set: {
+                                status: 'Chờ thanh toán',
+                                userId: req.session.user._id,
+                            },
+                        }
+                    );
+                }
             }
+            return res.redirect('/orders/me');
         } catch (error) {
             return res.send('Vui lòng kiểm tra lại đơn hàng');
         }

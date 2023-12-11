@@ -35,8 +35,8 @@ app.use(
         extended: true,
     })
 );
+app.use(express.json());
 // import lib giúp code html từ file khác
-
 app.engine(
     'hbs',
     hbs.engine({

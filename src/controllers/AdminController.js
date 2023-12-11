@@ -6,21 +6,17 @@ const { multipleMongooseToObj, mongooseToObj } = require('../util/mongoose');
 class AdminController {
     async renderDashboard(req, res) {
         try {
-            const [orderWaitConfirm, orderWaitPay, fee, me] = await Promise.all(
-                [
-                    Order.find({ status: 'Chờ xác nhận' }),
-                    Order.find({ status: 'Chờ thanh toán' }),
+            const [countOrderWaitConfirm, countOrderWaitPay, fee, me] =
+                await Promise.all([
+                    Order.countDocuments({ status: 'Chờ xác nhận' }),
+                    Order.countDocuments({ status: 'Chờ thanh toán' }),
                     Fee.findOne({ only: true }),
                     User.findOne({ _id: req.session.user._id }),
-                ]
-            );
-            const countOrderWaitConfirm = orderWaitConfirm.length;
-            const countOrderWaitPay = orderWaitPay.length;
+                ]);
             const profit = fee.profit;
             const isAdmin = req.session.user.admin;
             return res.render('admin/dashboard', {
                 me: mongooseToObj(me),
-                orderWaitConfirm,
                 countOrderWaitConfirm,
                 countOrderWaitPay,
                 profit,

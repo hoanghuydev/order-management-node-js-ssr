@@ -60,9 +60,16 @@
         <script
             src='https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js'
         ></script>
-
+        <script
+            src='https://pagination.js.org/dist/2.6.0/pagination.js'
+        ></script>
+        <script
+            src='https://cdnjs.cloudflare.com/ajax/libs/twbs-pagination/1.4.2/jquery.twbsPagination.min.js'
+        ></script>
         <script>
             $(document).ready( function () { $('#dataTable').DataTable(); } );
+            $(document).ready( function () {
+            $('#dataTableNoSearching').DataTable({ searching: false }); } );
         </script>
     </body>
 </html>
