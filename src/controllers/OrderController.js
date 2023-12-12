@@ -236,8 +236,6 @@ class OrderController {
     async payOrder(req, res) {
         const { orderIds } = req.body;
         try {
-            console.log(orderIds);
-            return;
             let updatePromises = [];
             if (typeof orderIds === 'string') {
                 updatePromises = [
