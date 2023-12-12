@@ -5,7 +5,7 @@ const { multipleMongooseToObj, mongooseToObj } = require('../util/mongoose');
 const Order = require('../models/Order');
 const User = require('../models/User');
 const Shop = require('../models/Shop');
-const { response } = require('express');
+const { response, json } = require('express');
 class OrderController {
     async getOrderWithFilter(req, res, next) {
         try {
@@ -236,6 +236,8 @@ class OrderController {
     async payOrder(req, res) {
         const { orderIds } = req.body;
         try {
+            console.log(orderIds);
+            return;
             let updatePromises = [];
             if (typeof orderIds === 'string') {
                 updatePromises = [

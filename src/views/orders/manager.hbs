@@ -101,7 +101,7 @@
                         <form action="/orders/pay?_method=PUT" method="POST" id="formPayOrder">
                             <div class="card-body" style="max-height: 80vh; overflow-y: auto;">
                                 <div class="table-responsive">
-                                    <table class="table table-bordered" id="noDatatable" width="100%" cellspacing="0">
+                                    <table class="table table-bordered" id="dataTableNoSearching" width="100%" cellspacing="0">
                                         <thead>
                                             <tr>
                                                 <th>Đã thanh toán</th>
@@ -122,7 +122,7 @@
                                         </thead>
 
                                         <tbody class="list-order">
-                                           
+                                           <div><input type="checkbox" id="selectAll" name="selectAll"/>Chọn tất cả</div>
                                         </tbody>
                                     </table>
                                 </div>

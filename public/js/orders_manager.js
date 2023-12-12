@@ -1,4 +1,6 @@
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
+    const pageSize = 100; // Number of items per page
+    let notFirstLoad = false;
     // {{!-- Show Loading --}}
     $('#formUpdateOrder').on('submit', function () {
         $('#loadingIndicator').removeClass('d-none').addClass('d-flex');
@@ -49,21 +51,16 @@ document.addEventListener('DOMContentLoaded', function () {
             $('#bankingText').html('');
         });
     }
-
-    // {{!-- Show Modal Delete Order --}}
-    let orderId;
-    const deleteForm = document.forms['delete-order-form'];
-    const deleteorderModal = document.getElementById('deleteorder');
-    if (deleteorderModal) {
-        deleteorderModal.addEventListener('show.bs.modal', function (event) {
-            const button = event.relatedTarget;
-            orderId = button.getAttribute('data-order-id');
-        });
+    // checked and uncheck select all of select orderId
+    function setSelectAll() {
+        const checked =
+            $("input:checkbox[name^='orderIds']:checked").length === pageSize;
+        if (checked) {
+            $("input:checkbox[name^='selectAll']").prop('checked', true);
+        } else {
+            $("input:checkbox[name^='selectAll']").prop('checked', false);
+        }
     }
-    $('.btn-delete-order').on('click', function () {
-        deleteForm.action = `/orders/delete/${orderId}?_method=DELETE`;
-        deleteForm.submit();
-    });
     // {{!-- Change status to Đã thanh toán --}}
     function validateFormPay() {
         const checked = $("input:checkbox[name^='orderIds']:checked").length;
@@ -73,14 +70,52 @@ document.addEventListener('DOMContentLoaded', function () {
             $('#payOrder').removeAttr('disabled');
         }
     }
-    validateFormPay();
-    $("input:checkbox[name^='orderIds']").on('change', function () {
-        validateFormPay();
-    });
-});
+    function addEventListenerForOrder() {
+        $('.btn-delete-order').on('click', function () {
+            deleteForm.action = `/orders/delete/${orderId}?_method=DELETE`;
+            deleteForm.submit();
+        });
 
-// {{!-- Get order with filter  --}}
-document.addEventListener('DOMContentLoaded', function () {
+        $("input:checkbox[name^='orderIds']").on('change', function () {
+            setSelectAll();
+            validateFormPay();
+        });
+        $("input:checkbox[name^='selectAll']").prop('checked', false);
+
+        $('#selectAll').on('change', function () {
+            const checked = $(
+                "input:checkbox[name^='selectAll']:checked"
+            ).length;
+            if (checked) {
+                $("input:checkbox[name^='orderIds']").prop('checked', true);
+            } else {
+                $("input:checkbox[name^='orderIds']").prop('checked', false);
+            }
+        });
+
+        // {{!-- Show Modal Delete Order --}}
+        let orderId;
+        const deleteForm = document.forms['delete-order-form'];
+        const deleteorderModal = document.getElementById('deleteorder');
+        if (deleteorderModal) {
+            deleteorderModal.addEventListener(
+                'show.bs.modal',
+                function (event) {
+                    const button = event.relatedTarget;
+                    orderId = button.getAttribute('data-order-id');
+                }
+            );
+        }
+
+        $('#dataTableNoSearching').DataTable({
+            paging: false,
+            searching: false,
+        });
+    }
+    validateFormPay();
+
+    // {{!-- Get order with filter  --}}
+
     // {{!-- convert query string from obj query --}}
     function convertToQueryString(data) {
         const queryString = Object.entries(data)
@@ -117,9 +152,9 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
     function initPagination() {
+        if (notFirstLoad) $('#dataTableNoSearching').DataTable().destroy();
         // Set up initial data for pagination
         let currentPage = 1;
-        const pageSize = 20; // Number of items per page
 
         // Function to fetch and display orders based on pagination
         function displayOrders(page) {
@@ -142,18 +177,26 @@ document.addEventListener('DOMContentLoaded', function () {
             };
 
             getOrderFilter(dataFilter)
-                .then((result) => {
+                .then(async (result) => {
                     const orders = result.orders;
                     const totalOrders = result.totalOrders;
 
                     // Update your UI with the fetched orders
+                    const updateOrderListPromise = updateOrderList(orders);
+                    const updatePaginationPromise = updatePagination(
+                        page,
+                        totalOrders
+                    );
 
-                    // Example: Update the list of orders
-                    updateOrderList(orders);
-
-                    // Example: Update the pagination display
-                    updatePagination(page, totalOrders);
+                    // Ensure both updateOrderList and updatePagination are completed
+                    // Update your UI with the fetched orders
+                    await updateOrderList(orders);
+                    await updatePagination(page, totalOrders);
+                    notFirstLoad = true;
+                    // Now call addEventListenerForOrder
+                    addEventListenerForOrder();
                 })
+
                 .catch((error) => {
                     console.error('Error fetching orders:', error);
                 });
@@ -161,69 +204,75 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Example: Update your order list based on the fetched orders
         function updateOrderList(orders) {
-            const ordersListElement = $('.list-order');
-            ordersListElement.empty();
-            for (let i = 0; i < orders.length; i++) {
-                const order = orders[i];
-                const htmlOrder = `
-            <tr>
-                <td>${
-                    order.status === 'Chờ thanh toán'
-                        ? `<input type="checkbox" value="${order._id}" name="orderIds" style="width: 20px;height: 20px;">`
-                        : ''
-                }</td>
-                <td>${order.orderCode}</td>
-                <td data-bs-toggle="modal" data-bs-target="#bankingInfo" data-order-code="${
-                    order.orderCode
-                }" data-user-id="${order.userId}" data-wage-amount="${
-                    order.wageAmount
-                }" id="btnShowBankInfo" >${order.userId}</td>
-                <td>${order.shopName}</td>
-                <td>${order.purchaseAccount}</td>
-                <td>${order.status}</td>
-                <td>${order.voucher}</td>
-                <td>${order.orderValue}</td>
-                <td>${order.wageCode}</td>
-                <td>${order.wageAmount}</td>
-                <td>${order.buyerPay}</td>
-                <td>${order.payFee}</td>
-                <td>${order.staticFee}</td>
-                <td class="d-flex flex-column justify-content-center align-items-center">
-                     <a href="/orders/edit/${
-                         order._id
-                     }" class="btn btn-primary mx-2"><i class="fa-solid fa-pen-to-square text-white"></i></a>
-                    <div class="btn btn-danger " data-bs-toggle="modal" data-bs-target="#deleteorder" data-order-id="${
-                        order._id
-                    }"><i class="fa-solid fa-trash text-white"></i></div>
-                </td>
-            </tr>
-          `;
-                ordersListElement.append(htmlOrder);
-            }
+            return new Promise((resolve) => {
+                const ordersListElement = $('.list-order');
+                ordersListElement.empty();
+                for (let i = 0; i < orders.length; i++) {
+                    const order = orders[i];
+                    const htmlOrder = `
+                <tr>
+                    <td>${
+                        order.status === 'Chờ thanh toán'
+                            ? `<input type="checkbox" value="${order._id}" name="orderIds" style="width: 20px;height: 20px;">`
+                            : ''
+                    }</td>
+                    <td>${order.orderCode}</td>
+                    <td data-bs-toggle="modal" data-bs-target="#bankingInfo" data-order-code="${
+                        order.orderCode
+                    }" data-user-id="${order.userId}" data-wage-amount="${
+                        order.wageAmount
+                    }" id="btnShowBankInfo" >${order.userId}</td>
+                    <td>${order.shopName}</td>
+                    <td>${order.purchaseAccount}</td>
+                    <td>${order.status}</td>
+                    <td>${order.voucher}</td>
+                    <td>${order.orderValue}</td>
+                    <td>${order.wageCode}</td>
+                    <td>${order.wageAmount}</td>
+                    <td>${order.buyerPay}</td>
+                    <td>${order.payFee}</td>
+                    <td>${order.staticFee}</td>
+                    <td class="d-flex flex-column justify-content-center align-items-center">
+                         <a href="/orders/edit/${
+                             order._id
+                         }" class="btn btn-primary mx-2"><i class="fa-solid fa-pen-to-square text-white"></i></a>
+                        <div class="btn btn-danger " data-bs-toggle="modal" data-bs-target="#deleteorder" data-order-id="${
+                            order._id
+                        }"><i class="fa-solid fa-trash text-white"></i></div>
+                    </td>
+                </tr>
+              `;
+                    ordersListElement.append(htmlOrder);
+                }
+                resolve();
+            });
         }
 
         // Example: Update the pagination display
         function updatePagination(currentPage, totalItems) {
-            $('#paginationOrder').twbsPagination('destroy'); // Destroy existing pagination
-            $('#paginationOrder').twbsPagination({
-                totalPages: Math.ceil(totalItems / pageSize),
-                visiblePages: 5,
-                startPage: currentPage,
-                onPageClick: function (event, page) {
-                    // Fetch and display orders for the clicked page
-                    displayOrders(page);
-                },
-                initiateStartPageClick: false,
+            return new Promise((resolve) => {
+                $('#paginationOrder').twbsPagination('destroy'); // Destroy existing pagination
+                $('#paginationOrder').twbsPagination({
+                    totalPages: Math.ceil(totalItems / pageSize),
+                    visiblePages: 5,
+                    startPage: currentPage,
+                    onPageClick: function (event, page) {
+                        // Fetch and display orders for the clicked page
+                        displayOrders(page);
+                    },
+                    initiateStartPageClick: false,
+                });
+                resolve();
             });
         }
 
         // Initial display of orders and pagination
         displayOrders(currentPage);
     }
-    initPagination();
+    await initPagination();
 
     //    {{!-- Filter when --}}
-    $('#btnFilterOrder').click(() => {
-        initPagination();
+    $('#btnFilterOrder').click(async () => {
+        await initPagination();
     });
 });
