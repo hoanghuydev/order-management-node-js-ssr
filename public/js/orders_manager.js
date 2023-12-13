@@ -75,11 +75,14 @@ document.addEventListener('DOMContentLoaded', async function () {
             deleteForm.action = `/orders/delete/${orderId}?_method=DELETE`;
             deleteForm.submit();
         });
+        setSelectAll();
+        validateFormPay();
 
         $("input:checkbox[name^='orderIds']").on('change', function () {
             setSelectAll();
             validateFormPay();
         });
+
         $("input:checkbox[name^='selectAll']").prop('checked', false);
 
         $('#selectAll').on('change', function () {
@@ -91,6 +94,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             } else {
                 $("input:checkbox[name^='orderIds']").prop('checked', false);
             }
+            validateFormPay();
         });
 
         // {{!-- Show Modal Delete Order --}}
