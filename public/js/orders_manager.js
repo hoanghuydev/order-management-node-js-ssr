@@ -187,13 +187,6 @@ document.addEventListener('DOMContentLoaded', async function () {
                     const orders = result.orders;
                     const totalOrders = result.totalOrders;
 
-                    // Update your UI with the fetched orders
-                    const updateOrderListPromise = updateOrderList(orders);
-                    const updatePaginationPromise = updatePagination(
-                        page,
-                        totalOrders
-                    );
-
                     // Ensure both updateOrderList and updatePagination are completed
                     // Update your UI with the fetched orders
                     await updateOrderList(orders);
