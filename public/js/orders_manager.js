@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', async function () {
     const pageSize = 100; // Number of items per page
-    let notFirstLoad = false;
     // {{!-- Show Loading --}}
     $('#formUpdateOrder').on('submit', function () {
         $('#loadingIndicator').removeClass('d-none').addClass('d-flex');
@@ -71,32 +70,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
     }
     function addEventListenerForOrder() {
-        $('.btn-delete-order').on('click', function () {
-            deleteForm.action = `/orders/delete/${orderId}?_method=DELETE`;
-            deleteForm.submit();
-        });
-        setSelectAll();
-        validateFormPay();
-
-        $("input:checkbox[name^='orderIds']").on('change', function () {
-            setSelectAll();
-            validateFormPay();
-        });
-
-        $("input:checkbox[name^='selectAll']").prop('checked', false);
-
-        $('#selectAll').on('change', function () {
-            const checked = $(
-                "input:checkbox[name^='selectAll']:checked"
-            ).length;
-            if (checked) {
-                $("input:checkbox[name^='orderIds']").prop('checked', true);
-            } else {
-                $("input:checkbox[name^='orderIds']").prop('checked', false);
-            }
-            validateFormPay();
-        });
-
         // {{!-- Show Modal Delete Order --}}
         let orderId;
         const deleteForm = document.forms['delete-order-form'];
@@ -121,8 +94,31 @@ document.addEventListener('DOMContentLoaded', async function () {
             );
             XLSX.writeFile(wb, 'ListOrderWeb.xlsx');
         });
+        $('.btn-delete-order').on('click', function () {
+            deleteForm.action = `/orders/delete/${orderId}?_method=DELETE`;
+            deleteForm.submit();
+        });
+        setSelectAll();
+        validateFormPay();
+        $("input:checkbox[name^='orderIds']").on('change', function () {
+            setSelectAll();
+            validateFormPay();
+        });
+
+        $("input:checkbox[name^='selectAll']").prop('checked', false);
+        console.log($('#selectAll'));
+        $('#selectAll').on('change', function () {
+            const checked = $(
+                "input:checkbox[name^='selectAll']:checked"
+            ).length;
+            if (checked) {
+                $("input:checkbox[name^='orderIds']").prop('checked', true);
+            } else {
+                $("input:checkbox[name^='orderIds']").prop('checked', false);
+            }
+            validateFormPay();
+        });
     }
-    validateFormPay();
 
     // {{!-- Get order with filter  --}}
 
@@ -202,7 +198,6 @@ document.addEventListener('DOMContentLoaded', async function () {
                     // Update your UI with the fetched orders
                     await updateOrderList(orders);
                     await updatePagination(page, totalOrders);
-                    notFirstLoad = true;
                     // Now call addEventListenerForOrder
                     addEventListenerForOrder();
                 })
