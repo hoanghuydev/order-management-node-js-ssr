@@ -111,6 +111,12 @@ document.addEventListener('DOMContentLoaded', async function () {
             paging: false,
             searching: false,
         });
+        $('#exportTable').click(function () {
+            var wb = XLSX.utils.table_to_book(
+                document.getElementById('dataTableNoSearching')
+            );
+            XLSX.writeFile(wb, 'ListOrderWeb.xlsx');
+        });
     }
     validateFormPay();
 
@@ -152,7 +158,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         });
     }
     function initPagination() {
-        if (notFirstLoad) $('#dataTableNoSearching').DataTable().destroy();
+        $('#dataTableNoSearching').DataTable().destroy();
         // Set up initial data for pagination
         let currentPage = 1;
 
@@ -275,4 +281,5 @@ document.addEventListener('DOMContentLoaded', async function () {
     $('#btnFilterOrder').click(async () => {
         await initPagination();
     });
+    // Export excel
 });

@@ -395,7 +395,7 @@ class OrderController {
 
                 // + orderValue của các orderCode trùng nhau
 
-                const orderMap = ordersData.reduce((acc, order) => {
+                let orderMap = ordersData.reduce((acc, order) => {
                     const existingOrderIndex = acc.findIndex(
                         (o) => o.orderCode === order.orderCode
                     );
@@ -409,12 +409,15 @@ class OrderController {
                     }
                     return acc;
                 }, []);
-                // orderMap = orderMap.map((order) => {
-                //     return {
-                //         ...order,
-                //         wageCode: order.voucher + '/' + order.orderValue,
-                //     };
-                // });
+                orderMap = orderMap.map((order) => {
+                    return {
+                        ...order,
+                        wageCode:
+                            order.voucher / 1000 +
+                            '/' +
+                            order.orderValue / 1000,
+                    };
+                });
 
                 const listorderCode = orderMap.map((order) => order.orderCode);
                 const [
