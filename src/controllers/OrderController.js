@@ -6,6 +6,7 @@ const Order = require('../models/Order');
 const User = require('../models/User');
 const Shop = require('../models/Shop');
 const { response, json } = require('express');
+const Wage = require('../models/Wage');
 class OrderController {
     async getOrderWithFilter(req, res, next) {
         try {
@@ -185,6 +186,14 @@ class OrderController {
                     wageAmount,
                 } = req.body;
                 const [shopId, shopName] = shopInfo.split('/');
+                const wageCode = voucher / 1000 + '/' + orderValue / 1000;
+                const shop = await Shop.findById(order.shopId);
+
+                const wage = await Wage.findOne({
+                    code: wageCode,
+                    userId: order.userId,
+                    shopType: shop.type,
+                });
                 await Order.updateOne(
                     { _id: order._id },
                     {
@@ -200,8 +209,8 @@ class OrderController {
                             orderValue,
                             staticFee,
                             payFee,
-                            wageAmount,
-                            wageCode: voucher / 1000 + '/' + orderValue / 1000,
+                            wageAmount: wage ? wage.amount : 0,
+                            wageCode,
                         },
                     }
                 );
@@ -352,8 +361,7 @@ class OrderController {
                 const result = excelToJson({
                     sourceFile: filePath,
                     header: {
-                        // Is the number of rows that will be skipped and will not be present at our result object. Counting from top to bottom
-                        rows: 1, // 2, 3, 4, etc.
+                        rows: 1,
                     },
                     columnToKey: {
                         '*': '{{columnHeader}}',
@@ -365,7 +373,6 @@ class OrderController {
                     (order) => order['Trạng Thái Đơn Hàng'] === 'Hoàn thành'
                 );
                 const shop = await Shop.findById(req.body.shopId);
-                console.log(shop);
                 //  Lấy orders từ file sang object
                 const ordersData = ordersCompleted.map((order) => {
                     if (order['Trạng Thái Đơn Hàng'] === 'Hoàn thành') {
@@ -392,7 +399,6 @@ class OrderController {
                         }).toObject();
                     }
                 });
-
                 // + orderValue của các orderCode trùng nhau
 
                 let orderMap = ordersData.reduce((acc, order) => {
@@ -409,6 +415,7 @@ class OrderController {
                     }
                     return acc;
                 }, []);
+                // Set new wage code
                 orderMap = orderMap.map((order) => {
                     return {
                         ...order,
@@ -417,6 +424,12 @@ class OrderController {
                             '/' +
                             order.orderValue / 1000,
                     };
+                });
+
+                const wageCodes = orderMap.map((order) => order.wageCode);
+                const wages = await Wage.find({
+                    shopType: shop.type,
+                    code: { $in: wageCodes },
                 });
 
                 const listorderCode = orderMap.map((order) => order.orderCode);
@@ -456,13 +469,21 @@ class OrderController {
                 const waitConfirmorderCodes = waitConfirmOrders.map(
                     (waitConfimOrder) => waitConfimOrder.orderCode
                 );
+                const getWageAmount = (order, wages) => {
+                    return wages.filter(
+                        (wage) => wage.code === order.wageCode
+                    )[0].amount;
+                };
                 let bulkOps = [];
                 for (const order of orderMap) {
                     if (skiporderCodes.includes(order.orderCode)) {
+                        // If have order but status is not "Chờ xác nhận" then skip order
                         continue;
                     } else if (
                         waitConfirmorderCodes.includes(order.orderCode)
                     ) {
+                        // Update status if status is "Chờ xác nhận"
+
                         const filter = {
                             orderCode: order.orderCode,
                         };
@@ -474,6 +495,7 @@ class OrderController {
                                 voucher: order.voucher,
                                 orderValue: order.orderValue,
                                 wageCode: order.wageCode,
+                                wageAmount: getWageAmount(order, wages),
                                 buyerPay: order.buyerPay,
                                 payFee: order.payFee,
                                 staticFee: order.staticFee,
@@ -488,7 +510,8 @@ class OrderController {
                             },
                         });
                     } else {
-                        const newOrder = new Order({
+                        // Insert new order if not existing order in db
+                        const newOrder = {
                             shopName: shop.name,
                             shopId: shop._id,
                             orderCode: order.orderCode,
@@ -496,22 +519,24 @@ class OrderController {
                             voucher: order.voucher,
                             orderValue: order.orderValue,
                             wageCode: order.wageCode,
+                            wageAmount: getWageAmount(order, wages),
                             buyerPay: order.buyerPay,
                             payFee: order.payFee,
                             staticFee: order.staticFee,
                             status: order.status,
-                        });
+                        };
                         bulkOps.push({
                             insertOne: {
-                                document: newOrder.toObject(),
+                                document: newOrder,
                             },
                         });
                     }
                 }
+
                 try {
-                    const result = await Order.bulkWrite(bulkOps);
+                    const result1 = await Order.bulkWrite(bulkOps);
                     console.log(
-                        `${result.upsertedCount} orders inserted, ${result.modifiedCount} orders updated.`
+                        `${result1.upsertedCount} orders inserted, ${result1.modifiedCount} orders updated.`
                     );
                 } catch (error) {
                     console.error('Error processing orders:', error);

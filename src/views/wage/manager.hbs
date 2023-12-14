@@ -1,0 +1,182 @@
+<div id='wrapper'>
+    {{>sidebar}}
+
+    <div id='content-wrapper' class='d-flex flex-column'>
+        <div id='content'>
+              {{>header}}
+            <div class='container-fluid'>
+
+                 <!-- Page Heading -->
+                <div
+                    class='d-sm-flex align-items-center justify-content-between mb-4'
+                >
+                    <h1 class='h3 mb-0 text-gray-800'>Quản lí tiền công</h1>
+                   
+                </div>
+
+                <!-- Content Row -->
+                <button class="btn btn-primary mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+                    <i class="fa-solid fa-circle-plus me-1" style="color: #ffffff;"></i>Thêm danh sách mã tiền công
+                </button>
+                <div class="collapse mb-3" id="collapseExample">
+                    <div class="card card-body">
+                        <form action="/wage/update" method="POST" id="formCreateShop" enctype="multipart/form-data">
+                            <div class='mb-3'>
+                                <label for='formFile' class='form-label'>Chọn tệp excel chứa mã tiền công</label>
+                                <input
+                                    class='form-control'
+                                    type='file'
+                                    id='formFile'
+                                    name='file'
+                                    accept=".xlsx, .xls"
+                                    required
+                                />
+                            </div>
+                           <div class="mb-3">
+                                <label for="typeShop" class="form-label">Loại shop</label>
+                                <select id="typeShop" class="form-select" name="shopType" required>
+                                  <option value="freeship">Freeship</option>
+                                  <option value="notfreeship">Không freeship</option>
+
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="typeShop" class="form-label">Người dùng</label>
+                                <select id="typeShop" class="form-select" name="userId" required>
+                                  <option value="" selected disabled>-- Chọn người dùng --</option>
+                                     {{#each users}}
+                                  <option value="{{this._id}}">{{this.username}}</option>
+                                     {{/each}}
+                                </select>
+                            </div>
+                          <button type="submit" class="btn btn-primary">Tạo mới cửa hàng</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Tất cả đơn hàng</h6>
+                    </div>
+                    <div class="card-body">
+                         <div class="list-group">
+                            {{#each users}}
+                                <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between" id="showCollapse{{this._id}}"  data-bs-toggle="collapse" data-bs-target="#collapse{{this._id}}" aria-expanded="false" aria-controls="collapse{{this._id}}">
+                                 <div>Username : {{this.username}}</div>
+                                 <div><i class="fa-solid fa-chevron-down"></i></div>
+                                </button>
+                                <div class="collapse mb-3" id="collapse{{this._id}}">
+                                    <div
+                                        style='background: #f3f3f3; border : 0.5px solid #d3d3d3; border-top : unset; padding : 10px; border-bottom-left-radius: 3px; border-bottom-right-radius: 3px;'
+                                    >
+                                        <button id="exportExcelWage{{this._id}}" class="btn btn-danger btn-md my-2">Xuất file excel mã tiền công</button>
+                                        <table
+                                            class='table table-bordered'
+                                            id='dataTable{{this._id}}'
+                                            width='100%'
+                                            cellspacing='0'
+                                        >
+                                            <thead>
+                                                <tr>
+                                                    <th>Mã tiền công</th>
+                                                    <th>Tiền công</th>
+                                                    <th>Loại shop</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tableBody{{this._id}}">
+                                            <td colspan="3" style="text-align: center;">
+                                                <div class='d-flex w-100 mt-3'>
+                                                  <div class="spinner-border m-auto" role="status">
+                                                    <span class="visually-hidden">Đang tải</span>
+                                                  </div>
+                                                </div>
+                                            </td>
+                                            </tbody>
+                                        </table>
+                                    </div> 
+                                    <script>
+                                        window.addEventListener("DOMContentLoaded", function () {
+                                            $('#exportExcelWage{{this._id}}').click(function () {
+                                                 var wb = XLSX.utils.table_to_book(
+                                                    document.getElementById('dataTable{{this._id}}')
+                                                );
+                                                XLSX.writeFile(wb, 'WageCodeOf{{this.username}}.xlsx');
+                                            })
+                                            $('#showCollapse{{this._id}}').on('click', function(){
+                                                const tbodyTable =  $("#tableBody{{this._id}}");
+                                                $.ajax({
+                                                    url : '/wage/list/{{this._id}}',
+                                                    success : function(data) {
+                                                        tbodyTable.empty();
+                                                        tbodyTable.append(data);
+                                                    },
+                                                    error : function () {
+                                                        $("body").append(`
+                                                        <div class="alert alert-danger" role="alert">
+                                                            <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
+                                                            <div> Có lỗi xảy ra!</div>
+                                                        </div>
+                                                        `)
+                                                    }
+                                                })
+                                            });
+                                        })
+                                    </script>
+                                </div>
+                            {{/each}}
+                         </div>
+                        
+
+                    </div>
+                </div>
+        </div>
+    </div>
+    {{!-- Modal Delete --}}
+    <div class="modal fade" id="deleteShop" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" >
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Xóa shop</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Bạn có chắc chắn muốn xóa shop này?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Không</button>
+            <button type="button" class="btn btn-danger btn-delete-shop">Xóa</button>
+     
+        
+      </div>
+    </div>
+  </div>
+</div>
+<form action="/shops/delete?_method=DELETE" method="POST" id="formDelete" class="d-none" name="delete-shop-form"></form>
+<script>
+    document.addEventListener('DOMContentLoaded', function(){
+      {{!-- Loading --}}
+        $('#formCreateShop').on('submit', function() {
+            $('#loadingIndicator').removeClass('d-none').addClass('d-flex');
+        });
+          $('#formDelete').on('submit', function() {
+            $('#loadingIndicator').removeClass('d-none').addClass('d-flex');
+        });
+    {{!-- Delete Shop --}}
+       let shopId;
+       const deleteForm = document.forms['delete-shop-form']
+        const deleteShopModal = document.getElementById('deleteShop');
+        if (deleteShopModal) {
+          deleteShopModal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget
+            shopId = button.getAttribute('data-shop-id')
+            
+          })
+        }
+        $('.btn-delete-shop').on('click', function(){
+            console.log(shopId)
+            deleteForm.action = `/shops/delete/${shopId}?_method=DELETE`;
+            deleteForm.submit()
+             
+       })
+
+    });
+</script>

@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', async function () {
+    let currentPage = 1; // Set up initial data for pagination
     const pageSize = 100; // Number of items per page
     // {{!-- Show Loading --}}
     $('#formUpdateOrder').on('submit', function () {
@@ -36,7 +37,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 .then((user) => user.json())
                 .then((user) => {
                     let bankQr = `https://img.vietqr.io/image/${user.bankCode}-${user.bankNumber}-compact2.png?amount=${wageAmount}&addInfo=${orderCode}&accountName=${user.bankHolder}`;
-                    let bankText = `<strong>Họ và tên tài khoản web: </strong>${user.fullName}.<br><strong>Chủ tài khoản: </strong>${user.bankHolder}.<br> <strong>Số tài khoản: </strong> ${user.bankNumber}.<br> <strong>Mã ngân hàng :</strong> ${user.bankCode}`;
+                    let bankText = `<strong>Họ và tên tài khoản web: </strong>${user.fullName}.<br><strong>Tên người dùng: </strong>${user.fullName}.<br><strong>Chủ tài khoản: </strong>${user.bankHolder}.<br> <strong>Số tài khoản: </strong> ${user.bankNumber}.<br> <strong>Mã ngân hàng :</strong> ${user.bankCode}`;
                     $('#loadingQRCode')
                         .removeClass('d-flex')
                         .addClass('d-none');
@@ -92,7 +93,7 @@ document.addEventListener('DOMContentLoaded', async function () {
             var wb = XLSX.utils.table_to_book(
                 document.getElementById('dataTableNoSearching')
             );
-            XLSX.writeFile(wb, 'ListOrderWeb.xlsx');
+            XLSX.writeFile(wb, `Danh Sách Đơn Hàng Trang ${currentPage}.xlsx`);
         });
         $('.btn-delete-order').on('click', function () {
             deleteForm.action = `/orders/delete/${orderId}?_method=DELETE`;
@@ -159,18 +160,18 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
     function initPagination() {
         $('#dataTableNoSearching').DataTable().destroy();
-        // Set up initial data for pagination
-        let currentPage = 1;
 
         // Function to fetch and display orders based on pagination
         function displayOrders(page) {
             $('.list-order').empty();
             $('.list-order').append(`
-            <div class='d-flex w-100 mt-3'>
-              <div class="spinner-border m-auto" role="status">
-                <span class="visually-hidden">Loading...</span>
-              </div>
-            </div>
+            <td colspan="13" style="text-align: center;">
+                <div class='d-flex w-100 mt-3'>
+                  <div class="spinner-border m-auto" role="status">
+                    <span class="visually-hidden">Đang tải</span>
+                  </div>
+                </div>
+            </td>
           `);
             let dataFilter = {
                 shopId: $('#shopId').val(),
@@ -186,13 +187,6 @@ document.addEventListener('DOMContentLoaded', async function () {
                 .then(async (result) => {
                     const orders = result.orders;
                     const totalOrders = result.totalOrders;
-
-                    // Update your UI with the fetched orders
-                    const updateOrderListPromise = updateOrderList(orders);
-                    const updatePaginationPromise = updatePagination(
-                        page,
-                        totalOrders
-                    );
 
                     // Ensure both updateOrderList and updatePagination are completed
                     // Update your UI with the fetched orders

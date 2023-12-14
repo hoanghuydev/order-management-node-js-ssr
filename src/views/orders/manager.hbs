@@ -94,13 +94,16 @@
                   <button class="btn btn-primary px-5 mx-2 py-2 my-auto" id="btnFilterOrder">Lọc</button>
                 </div>
                 <div class="card shadow mb-4">
-                        <div class="card-header py-3 d-flex justify-content-between">
-                            <h6 class="m-0 font-weight-bold text-primary">Tất cả đơn hàng</h6>
-                            <button class="btn btn-sm btn-danger" id="exportTable">Xuất file excel</button>
+                        <div class="card-header py-3 ">
+                            <div class="d-flex justify-content-between">
+                              <h6 class="m-0 font-weight-bold text-primary">Tất cả đơn hàng</h6>
+                              <button class="btn btn-sm btn-danger" id="exportTable">Xuất file excel</button>
+                            </div>
                         </div>
                         
                         <form action="/orders/pay?_method=PUT" method="POST" id="formPayOrder">
                             <div class="card-body" >
+                             <div><input type="checkbox" id="selectAll" name="selectAll"/>Chọn tất cả</div>
                                 <div class="table-responsive" style="max-height: 80vh; overflow-y: auto;">
                                     <table class="table table-bordered" id="dataTableNoSearching" width="100%" cellspacing="0">
                                         <thead>
@@ -123,7 +126,7 @@
                                         </thead>
 
                                         <tbody class="list-order">
-                                           <div><input type="checkbox" id="selectAll" name="selectAll"/>Chọn tất cả</div>
+                                          
                                         </tbody>
                                     </table>
                                 </div>
