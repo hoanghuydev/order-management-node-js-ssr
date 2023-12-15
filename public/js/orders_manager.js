@@ -231,6 +231,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                     <td>${order.buyerPay}</td>
                     <td>${order.payFee}</td>
                     <td>${order.staticFee}</td>
+                    <td>${order.serviceFee}</td>
                     <td class="d-flex flex-column justify-content-center align-items-center">
                          <a href="/orders/edit/${
                              order._id

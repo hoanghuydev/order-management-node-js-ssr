@@ -392,6 +392,7 @@ class OrderController {
                             ),
                             payFee: Number(order['Phí thanh toán']),
                             staticFee: Number(order['Phí cố định']),
+                            serviceFee: Number(order['Phí Dịch Vụ']),
                             wageCode:
                                 Number(order['Mã giảm giá của Shopee'] / 1000) +
                                 '/' +

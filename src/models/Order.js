@@ -14,5 +14,6 @@ const OrderSchema = new Schema({
     buyerPay: { type: Number, default: 0 },
     payFee: { type: Number, default: 0 },
     staticFee: { type: Number, default: 0 },
+    serviceFee: { type: Number, default: 0 },
 });
 module.exports = mongoose.model('orders', OrderSchema);
