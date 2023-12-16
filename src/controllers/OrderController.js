@@ -473,14 +473,14 @@ class OrderController {
                     (waitConfimOrder) => waitConfimOrder.orderCode
                 );
 
-                const getWageAmount = async (order, wages) => {
+                const getWageAmount = (order, wages) => {
                     const wage = wages.filter(
                         (wage) =>
                             wage.code === order.wageCode &&
                             wage.userId === order.userId
                     );
-                    console.log(wage);
-                    return wage.length > 0 ? wage[0].amount : 0;
+                    const result = wage.length > 0 ? wage[0].amount : 0;
+                    return result;
                 };
 
                 let bulkOps = [];
@@ -492,7 +492,7 @@ class OrderController {
                         waitConfirmorderCodes.includes(order.orderCode)
                     ) {
                         // Update status if status is "Chờ xác nhận"
-
+                        console.log(typeof getWageAmount(order, wages));
                         const filter = {
                             orderCode: order.orderCode,
                         };
@@ -544,10 +544,10 @@ class OrderController {
                         });
                     }
                 });
-
                 // Use Promise.all to wait for all asynchronous operations to complete
                 await Promise.all(promises).catch((error) => {
                     console.error('Error in promises:', error);
+                    res.send(error);
                 });
 
                 try {
