@@ -416,6 +416,7 @@ class OrderController {
                     }
                     return acc;
                 }, []);
+
                 // Set new wage code
                 orderMap = orderMap.map((order) => {
                     return {
@@ -434,6 +435,7 @@ class OrderController {
                 });
 
                 const listorderCode = orderMap.map((order) => order.orderCode);
+
                 const [
                     doneOrders,
                     waitPayOrder,
@@ -470,16 +472,22 @@ class OrderController {
                 const waitConfirmorderCodes = waitConfirmOrders.map(
                     (waitConfimOrder) => waitConfimOrder.orderCode
                 );
-                const getWageAmount = (order, wages) => {
-                    return wages.filter(
-                        (wage) => wage.code === order.wageCode
-                    )[0].amount;
+
+                const getWageAmount = async (order, wages) => {
+                    const wage = wages.filter(
+                        (wage) =>
+                            wage.code === order.wageCode &&
+                            wage.userId === order.userId
+                    );
+                    console.log(wage);
+                    return wage.length > 0 ? wage[0].amount : 0;
                 };
+
                 let bulkOps = [];
-                for (const order of orderMap) {
+                const promises = orderMap.map(async (order) => {
                     if (skiporderCodes.includes(order.orderCode)) {
                         // If have order but status is not "Chờ xác nhận" then skip order
-                        continue;
+                        return;
                     } else if (
                         waitConfirmorderCodes.includes(order.orderCode)
                     ) {
@@ -500,6 +508,7 @@ class OrderController {
                                 buyerPay: order.buyerPay,
                                 payFee: order.payFee,
                                 staticFee: order.staticFee,
+                                serviceFee: order.serviceFee,
                                 status: 'Chờ thanh toán',
                             },
                         };
@@ -511,8 +520,8 @@ class OrderController {
                             },
                         });
                     } else {
-                        // Insert new order if not existing order in db
-                        const newOrder = {
+                        // Insert new order if not an existing order in db
+                        const newOrder = new Order({
                             shopName: shop.name,
                             shopId: shop._id,
                             orderCode: order.orderCode,
@@ -524,15 +533,22 @@ class OrderController {
                             buyerPay: order.buyerPay,
                             payFee: order.payFee,
                             staticFee: order.staticFee,
+                            serviceFee: order.serviceFee,
                             status: order.status,
-                        };
+                        });
+
                         bulkOps.push({
                             insertOne: {
-                                document: newOrder,
+                                document: newOrder.toObject(),
                             },
                         });
                     }
-                }
+                });
+
+                // Use Promise.all to wait for all asynchronous operations to complete
+                await Promise.all(promises).catch((error) => {
+                    console.error('Error in promises:', error);
+                });
 
                 try {
                     const result1 = await Order.bulkWrite(bulkOps);
@@ -541,6 +557,7 @@ class OrderController {
                     );
                 } catch (error) {
                     console.error('Error processing orders:', error);
+                    return res.send(error);
                 }
                 return res.redirect('/orders/manager?update_order=success');
             }
