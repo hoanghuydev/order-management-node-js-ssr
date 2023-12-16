@@ -1,3 +1,4 @@
+const Order = require('../models/Order');
 const Shop = require('../models/Shop');
 const User = require('../models/User');
 const { mongooseToObj, multipleMongooseToObj } = require('../util/mongoose');
@@ -38,6 +39,7 @@ class ShopController {
     }
     async deleteShop(req, res) {
         await Shop.deleteOne({ _id: req.params.shopId });
+        await Order.deleteMany({ shopId: req.params.shopId });
         return res.redirect('/shops/manager');
     }
     async createShop(req, res) {

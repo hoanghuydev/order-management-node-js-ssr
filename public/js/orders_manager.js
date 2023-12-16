@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 .then((user) => user.json())
                 .then((user) => {
                     let bankQr = `https://img.vietqr.io/image/${user.bankCode}-${user.bankNumber}-compact2.png?amount=${wageAmount}&addInfo=${orderCode}&accountName=${user.bankHolder}`;
-                    let bankText = `<strong>Họ và tên tài khoản web: </strong>${user.fullName}.<br><strong>Tên người dùng: </strong>${user.fullName}.<br><strong>Chủ tài khoản: </strong>${user.bankHolder}.<br> <strong>Số tài khoản: </strong> ${user.bankNumber}.<br> <strong>Mã ngân hàng :</strong> ${user.bankCode}`;
+                    let bankText = `<strong>Họ và tên tài khoản web: </strong>${user.fullName}.<br><strong>Tên người dùng: </strong>${user.username}.<br><strong>Chủ tài khoản: </strong>${user.bankHolder}.<br> <strong>Số tài khoản: </strong> ${user.bankNumber}.<br> <strong>Mã ngân hàng :</strong> ${user.bankCode}`;
                     $('#loadingQRCode')
                         .removeClass('d-flex')
                         .addClass('d-none');
